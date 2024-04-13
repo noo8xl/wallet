@@ -1,0 +1,40 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Build the app
+    cmds:
+      - GOFLAGS=-mod=mod go build -o bin/gopher-cli main.go
+
+  gwt-crt:
+    desc: Run the get wallet command to create wallet with all available coins to current user
+    cmds:
+      # second flag should be a userId
+      - GOFLAGS=-mod=mod go run main.go create
+
+  gwt-btc:
+    desc: Run the get wallet command to create a btc ome-time address
+    cmds:
+      - GOFLAGS=-mod=mod go run main.go gwlt btc
+
+  gwt-ton:
+    desc: Run the get wallet command to create a ton ome-time address
+    cmds:
+      - GOFLAGS=-mod=mod go run main.go gwlt ton
+
+  gb-btc:
+    desc: Run the get balance command to get a btc balance data by address
+    cmds:
+      # second flag should be an btc address
+      - GOFLAGS=-mod=mod go run main.go gb btc bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+
+  gb-ton:
+    desc: Run the get balance command to get a ton balance data by address
+    cmds:
+      # second flag should be a ton address
+      - GOFLAGS=-mod=mod go run main.go gb ton UQBDlXKkjzpBLdB9ck7vdRCsedbCQW37iFd03xb60cj65rNR
+
+  run:
+    desc: Run the app
+    cmds:
+      - GOFLAGS=-mod=mod go run main.go

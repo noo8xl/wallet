@@ -105,9 +105,9 @@ func CreateOneTimeAddress(userId int64) (string, error) {
 // InitTonAPIConnection -> create ton blockchain connection
 func initTonAPIConnection() *ton.APIClient {
 	// Mainnet
-	// var configUrl = "https://ton.org/global.config.json"
+	var configUrl = "https://ton.org/global.config.json"
 	// Testnet
-	configUrl := "https://ton-blockchain.github.io/testnet-global.config.json"
+	// configUrl := "https://ton-blockchain.github.io/testnet-global.config.json"
 
 	client := liteclient.NewConnectionPool()
 	ctx = client.StickyContext(context.Background())

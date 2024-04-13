@@ -3,6 +3,7 @@ package bitcoin
 
 import (
 	"fmt"
+	"log"
 	"math/big"
 	"strconv"
 	"wallet-cli/lib/config"
@@ -74,6 +75,7 @@ func CreateOneTimeBitcoinAddress(userID string) (string, error) {
 // GetBitcoinAddressBalance -> get balance by address
 func GetBitcoinAddressBalance(address string) *big.Float {
 
+	log.Println("adr -> ", address)
 	// ###############################################
 	// ######## DOESN"T WORK AT TEST NET! ############
 	// ###############################################

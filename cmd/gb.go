@@ -2,15 +2,17 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"math/big"
 	"os"
+	"wallet-cli/api"
 	"wallet-cli/crypto-lib/bitcoin"
 	theopennetwork "wallet-cli/crypto-lib/the-open-network"
 
 	"github.com/spf13/cobra"
 )
 
-// gbCmd represents the gb command
+// gbCmd represents the gb <get balance> command
 var gbCmd = &cobra.Command{
 	Use:   "gb",
 	Short: "A brief description of your command",
@@ -25,28 +27,36 @@ var gbCmd = &cobra.Command{
 		var flag string
 		var address string
 		var balance *big.Float
+		var fiatBalance float64
+		f := new(big.Float)
 
 		if len(args) == 0 {
 			os.Exit(1)
 		} else {
-			for _, item := range args {
-				fmt.Println("flag is -> ", item)
-			}
 
 			flag = args[0]
 			address = args[1]
+
+			fmt.Println("coin name is -> ", flag)
+			fmt.Println("coin address is -> ", address)
+
 		}
 
 		switch flag {
 		case "btc":
 			balance = bitcoin.GetBitcoinAddressBalance(address)
+			fiatBalance = api.GetRate("bitcoin", "usd")
 		case "ton":
 			balance = theopennetwork.GetTonBalanceByAddress(address)
+			fiatBalance = api.GetRate("the-open-network", "usd")
 		default:
 			fmt.Println("Unknown blockchain")
 		}
 
-		fmt.Println(flag, " balance is -> ", balance)
+		f.SetFloat64(fiatBalance)
+		balInUsd := new(big.Float).SetPrec(20).Mul(f, balance)
+
+		log.Println(flag, "balance is ->", balance, "= $", balInUsd)
 	},
 }
 

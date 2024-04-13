@@ -6,11 +6,13 @@ tasks:
     cmds:
       - GOFLAGS=-mod=mod go build -o bin/gopher-cli main.go
 
+  # ---------------------------------- get wallet commands ------------------------------------------------
+
   gwt-crt:
     desc: Run the get wallet command to create wallet with all available coins to current user
     cmds:
-      # second flag should be a userId
-      - GOFLAGS=-mod=mod go run main.go create
+      # third flag should be a userId <-
+      - GOFLAGS=-mod=mod go run main.go gwlt create userId-123-test
 
   gwt-btc:
     desc: Run the get wallet command to create a btc ome-time address
@@ -21,6 +23,8 @@ tasks:
     desc: Run the get wallet command to create a ton ome-time address
     cmds:
       - GOFLAGS=-mod=mod go run main.go gwlt ton
+
+  # ---------------------------------- get balanmce commands ------------------------------------------------
 
   gb-btc:
     desc: Run the get balance command to get a btc balance data by address
@@ -33,6 +37,22 @@ tasks:
     cmds:
       # second flag should be a ton address
       - GOFLAGS=-mod=mod go run main.go gb ton UQBDlXKkjzpBLdB9ck7vdRCsedbCQW37iFd03xb60cj65rNR
+
+  # ---------------------------------- transaction commands ------------------------------------------------
+
+  tsx-btc:
+    desc: Run the send transaction from address to address in btc blockchain
+    cmds:
+      # second flag should be a btc address from, third -> address to, fourth -> amount
+      - GOFLAGS=-mod=mod go run main.go tsx btc bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh 0.2
+
+  tsx-ton:
+    desc: Run the send transaction from address to address in ton blockchain
+    cmds:
+      # second flag should be a ton address from, third -> address to, fourth -> amount
+      - GOFLAGS=-mod=mod go run main.go tsx ton
+
+  # ---------------------------------- default commands ------------------------------------------------
 
   run:
     desc: Run the app

@@ -11,7 +11,7 @@ import (
 // https://www.blockcypher.com/dev/?go#introduction -> doc is here <-
 
 // CreateSingleBitcoinTransactionSkeleton -> create transaction skeleton, sign in locally and send to user for validate it
-func CreateSingleBitcoinTransactionSkeleton(dto models.SendTransactionRequestDto) gobcy.TXSkel {
+func CreateSingleBitcoinTransactionSkeleton(dto models.SendTransactionDto) gobcy.TXSkel {
 	var skeleton gobcy.TXSkel
 	// get addressFrom data from db
 	// by userID from request <----
@@ -36,6 +36,7 @@ func CreateSingleBitcoinTransactionSkeleton(dto models.SendTransactionRequestDto
 	if err != nil {
 		return skeleton
 	}
+
 	//Sign it locally
 	err = skeleton.Sign([]string{addressFrom.Private})
 	if err != nil {
@@ -99,7 +100,7 @@ func CreateMultiplyBitcoinTransactionSkeleton(addressTo string, amount big.Int) 
 }
 
 // SendBtcTransaction -> push transaction to blockchain
-func SendSingleBtcTransaction(dto models.SendTransactionRequestDto) string {
+func SendSingleBtcTransaction(dto models.SendTransactionDto) string {
 	// create skeleton and push it to BC
 	skel := CreateSingleBitcoinTransactionSkeleton(dto)
 	return pushBtcTransaction(skel.Trans.Hash)

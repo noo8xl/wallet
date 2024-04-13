@@ -1,0 +1,27 @@
+
+-> implement getRate API * ------------- => done *
+
+-> btc test net transaction logic 
+
+-> ton test net transaction logic
+
+-> connect to the notification API via http ???
+
+---> compile and install as cli-app
+
+#
+---> connect with node.js app as walelt handler <---
+#
+
+
+-------------------> after tests:
+
+add more blockchains options:
+
+-> eth create wallet
+-> eth get balance
+-> eth test net send transaction
+
++++ trx
+
++++ ?

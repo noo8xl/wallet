@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 noo8xl <niko8elich@gmail.com>
-*/
 package main
 
 import "wallet-cli/cmd"

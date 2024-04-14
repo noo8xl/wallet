@@ -1,20 +1,24 @@
+-> implement getRate API ------------- => done +
 
--> implement getRate API * ------------- => done *
+-> create databases ----------------- => done +
 
--> btc test net transaction logic 
+-> test database insertion ------------- => done +
+
+-> set cache after create wallet to have an access from main API ---- => done +
+
+-> btc test net transaction logic
 
 -> ton test net transaction logic
 
 -> connect to the notification API via http ???
 
----> compile and install as cli-app
+-> set autoremove for redis store
 
-#
+---> compile and install as a cli-app
+
 ---> connect with node.js app as walelt handler <---
-#
 
-
--------------------> after tests:
+-------------------> after first release:
 
 add more blockchains options:
 

@@ -7,7 +7,10 @@ import (
 	"log"
 	"math/big"
 	"os"
+	"time"
+	"wallet-cli/database"
 	"wallet-cli/lib/helpers"
+	"wallet-cli/lib/models"
 
 	"github.com/xssnick/tonutils-go/address"
 	"github.com/xssnick/tonutils-go/liteclient"
@@ -23,33 +26,42 @@ var ctx context.Context
 // https://github.com/xssnick/tonutils-go#Wallet
 // -> the doc is here <-
 
-func CreateWallet(userID string) bool {
+func CreateWallet(userId string) string {
 	var err error
 	var words []string
 	var w *wallet.Wallet
 	tonAPI := initTonAPIConnection()
+	stamp := time.Now().UnixMilli()
 
 	words = wallet.NewSeed()
 	w, err = wallet.FromSeed(tonAPI, words, wallet.V4R2)
 	if err != nil {
-		return false
+		return ""
 	} else {
-		// -> save wallet were to main mysql db!
-		// models.WalletCoinItem{
-		// 	CoinName:    "btc",
-		// 	Address:     "btc address ->>",
-		// 	CoinBalance: 0,
-		// 	FiatBalance: 0,
-		// 	// WalletId: "",
-		// }
-		log.Println("wallet:\n", w.WalletAddress())
-		return true
+		wt := models.TonWallet{
+			Address:    w.WalletAddress().String(),
+			AddrType:   w.Address().Type(),
+			PrivateKey: w.PrivateKey(),
+			BitsLen:    w.Address().BitsLen(),
+			CreatedAt:  stamp,
+			UpdatedAt:  stamp,
+			UserId:     userId,
+		}
+		// -> save wallet were to main db!
+		if err := database.InsertTonWallet(wt); err != nil {
+			log.Println("database insertion error", err)
+			os.Exit(1)
+		}
 	}
+
+	log.Println("wallet:\n", w.WalletAddress().String())
+	return w.WalletAddress().String()
 }
 
 // GetTonBalanceByAddress -> get balance value by coin address
 func GetTonBalanceByAddress(a string) *big.Float {
-	var curBalance *big.Float
+
+	curBalance := new(big.Float)
 	var addr *address.Address
 	var blcn *ton.BlockIDExt
 	var acc *tlb.Account
@@ -82,20 +94,10 @@ func GetTonBalanceByAddress(a string) *big.Float {
 
 	fmt.Printf("Status: %s\n", acc.State.Status)
 
-	curBalance = new(big.Float)
 	curBalance.SetString(acc.State.Balance.String())
 	fmt.Println(" curBalance --> ", curBalance)
 
-	// tested with this wallet ->
-	// -> UQBDlXKkjzpBLdB9ck7vdRCsedbCQW37iFd03xb60cj65rNR
-	// expected value is -> 63.675465957
-
 	return curBalance
-}
-
-func CreateOneTimeAddress(userId int64) (string, error) {
-
-	return "", nil
 }
 
 // ===========================================================================================//
@@ -104,10 +106,9 @@ func CreateOneTimeAddress(userId int64) (string, error) {
 
 // InitTonAPIConnection -> create ton blockchain connection
 func initTonAPIConnection() *ton.APIClient {
-	// Mainnet
-	var configUrl = "https://ton.org/global.config.json"
-	// Testnet
-	// configUrl := "https://ton-blockchain.github.io/testnet-global.config.json"
+
+	// configUrl := "https://ton.org/global.config.json" // -> Mainnet
+	configUrl := "https://ton-blockchain.github.io/testnet-global.config.json" // -> Testnet
 
 	client := liteclient.NewConnectionPool()
 	ctx = client.StickyContext(context.Background())

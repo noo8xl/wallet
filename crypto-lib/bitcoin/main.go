@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"math/big"
-	"strconv"
+	"os"
+	"time"
+	"wallet-cli/database"
 	"wallet-cli/lib/config"
 	"wallet-cli/lib/models"
 
@@ -16,44 +18,38 @@ var bc gobcy.API
 var apiToken = config.GetBitcoinAPIKey()
 
 // CreateWallet is in charge of creating a new root wallet
-func CreateWallet(userID string) bool {
+func CreateWallet(userID string) string {
 	initBlockchain("btc")
-	var userW models.WalletCoinItem
-	uId, _ := strconv.Atoi(userID)
+	stamp := time.Now().UnixMilli()
 
 	addressKeys, err := bc.GenAddrKeychain()
 	if err != nil {
-		return false
+		panic(err)
 	} else {
-		fmt.Println("generated btc address is\n->", addressKeys)
-		// -> save wallet to main mysql db (in cryptomodule)! <-
+		wt := models.BtcWallet{
+			Address:         addressKeys.Address,
+			PrivateKey:      addressKeys.Private,
+			PublicKey:       addressKeys.Public,
+			Wif:             addressKeys.Wif,
+			ScriptType:      addressKeys.ScriptType,
+			OriginalAddress: addressKeys.OriginalAddress,
+			OAPAddress:      addressKeys.OAPAddress,
+			CreatedAt:       stamp,
+			UpdatedAt:       stamp,
+			UserId:          userID,
+			// PubKeys:         addressKeys.PubKeys,
+		}
 
-		userW.UserId = int64(uId)
-		userW.Address = addressKeys.Address
-		userW.CoinBalance = 0
-		userW.CoinName = "btc"
-		userW.FiatBalance = 0
-		userW.WalletId = "" // update before save to db ()
-
-		// save cache data by userId as models.WalletCoinItem <-----
-		// return cache.SetNewWalletCoinItemData(userW)
-		return false
+		// -> save wallet to main db <-
+		if err := database.InsertBtcWallet(wt); err != nil {
+			log.Println("database insertion error", err)
+			os.Exit(1)
+		}
 	}
 
-	// // // normal wallet
-	// w, err = bc.CreateWallet(gobcy.Wallet{
-	// 	// Name:      "test",
-	// 	Addresses: []string{addressKeys.Address},
-	// })
-	// if err != nil {
-	// 	exception.ErrorHandlerException("create btc wallet", err)
-	// 	return false
-	// } else {
-	// 	// -> save wallet were !
-
-	// 	fmt.Println("w is ->\n", w)
-	// 	return true
-	// }
+	// returt btc address
+	fmt.Println("generated btc address is\n->", addressKeys)
+	return addressKeys.Address
 }
 
 func CreateOneTimeBitcoinAddress(userID string) (string, error) {
@@ -76,9 +72,9 @@ func CreateOneTimeBitcoinAddress(userID string) (string, error) {
 func GetBitcoinAddressBalance(address string) *big.Float {
 
 	log.Println("adr -> ", address)
-	// ###############################################
-	// ######## DOESN"T WORK AT TEST NET! ############
-	// ###############################################
+	// ###################################################
+	// ######## DOESN"T WORK AT THE TEST NET! ############
+	// ###################################################
 
 	// balance value from API will be receive in satoshi value
 	// to calculate it in btc value -> should multiply on 0.00_000_001
@@ -125,8 +121,8 @@ func initBlockchain(c string) {
 	} else {
 		bc = gobcy.API{}
 		bc.Token = apiToken
-		bc.Coin = c       // options: "btc","bcy","ltc","doge","eth"
-		bc.Chain = "main" // depending on coin: "main","test3","test"
+		bc.Coin = c        // options: "btc","bcy","ltc","doge","eth"
+		bc.Chain = "test3" // depending on coin: "main","test3","test"
 
 		fmt.Println("blockchain is->", bc.Chain)
 	}

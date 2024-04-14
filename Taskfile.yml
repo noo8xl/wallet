@@ -12,17 +12,17 @@ tasks:
     desc: Run the get wallet command to create wallet with all available coins to current user
     cmds:
       # third flag should be a userId <-
-      - GOFLAGS=-mod=mod go run main.go gwlt create userId-123-test
+      - GOFLAGS=-mod=mod go run main.go gwlt create test-user-id
 
   gwt-btc:
     desc: Run the get wallet command to create a btc ome-time address
     cmds:
-      - GOFLAGS=-mod=mod go run main.go gwlt btc
+      - GOFLAGS=-mod=mod go run main.go gwlt btc test-user-id
 
   gwt-ton:
     desc: Run the get wallet command to create a ton ome-time address
     cmds:
-      - GOFLAGS=-mod=mod go run main.go gwlt ton
+      - GOFLAGS=-mod=mod go run main.go gwlt ton test-user-id
 
   # ---------------------------------- get balanmce commands ------------------------------------------------
 
@@ -30,13 +30,13 @@ tasks:
     desc: Run the get balance command to get a btc balance data by address
     cmds:
       # second flag should be an btc address
-      - GOFLAGS=-mod=mod go run main.go gb btc bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+      - GOFLAGS=-mod=mod go run main.go gb btc bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh usd
 
   gb-ton:
     desc: Run the get balance command to get a ton balance data by address
     cmds:
       # second flag should be a ton address
-      - GOFLAGS=-mod=mod go run main.go gb ton UQBDlXKkjzpBLdB9ck7vdRCsedbCQW37iFd03xb60cj65rNR
+      - GOFLAGS=-mod=mod go run main.go gb ton UQBDlXKkjzpBLdB9ck7vdRCsedbCQW37iFd03xb60cj65rNR usd
 
   # ---------------------------------- transaction commands ------------------------------------------------
 
@@ -44,13 +44,21 @@ tasks:
     desc: Run the send transaction from address to address in btc blockchain
     cmds:
       # second flag should be a btc address from, third -> address to, fourth -> amount
-      - GOFLAGS=-mod=mod go run main.go tsx btc bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh 0.2
+      - GOFLAGS=-mod=mod go run main.go tsx btc mx7gPu4v1E77LH25BqYtUjTAZnykVxoKK2 bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh 0.2
 
   tsx-ton:
     desc: Run the send transaction from address to address in ton blockchain
     cmds:
       # second flag should be a ton address from, third -> address to, fourth -> amount
       - GOFLAGS=-mod=mod go run main.go tsx ton
+
+  # ---------------------------------- transaction commands ------------------------------------------------
+
+  prs-btc:
+    desc: Run the balance parser in range FROM-stamp to TO-stamp
+    cmds:
+      # second flag should be an btc address
+      - GOFLAGS=-mod=mod go run main.go prs btc 01230129301 079419028741
 
   # ---------------------------------- default commands ------------------------------------------------
 

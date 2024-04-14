@@ -16,6 +16,7 @@ import (
 
 // doc is here -> https://www.coingecko.com/api/documentation <-
 
+// GetRate -> get coin rate by coinName (usd value)
 func GetRate(coinName, currency string) float64 {
 
 	var rate float64

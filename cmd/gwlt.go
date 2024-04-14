@@ -3,8 +3,10 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 	"wallet-cli/crypto-lib/bitcoin"
 	theopennetwork "wallet-cli/crypto-lib/the-open-network"
+	"wallet-cli/lib/cache"
 
 	"github.com/spf13/cobra"
 )
@@ -21,29 +23,42 @@ var gwltCmd = &cobra.Command{
 				to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		stamp := time.Now().UnixMilli()
+
 		var flag string
-		var testId string = "userId"
+		var userId string
+		var address string
 
 		if len(args) == 0 {
 			os.Exit(1)
 		} else {
-			for _, item := range args {
-				fmt.Println("flag is -> ", item)
-			}
 
 			flag = args[0]
+			userId = args[1]
+
+			fmt.Println("coin name is -> ", flag)
+			fmt.Println("userId is -> ", userId)
 		}
 
 		switch flag {
+		case "create":
+			// run go routine to create a list of all available wallets
+			// return a []list of structs -> {coinName: "", address: "", userId: ""}
+			// set cache data with generated []list
 		case "btc":
-			bitcoin.CreateWallet(testId)
+			address = bitcoin.CreateWallet(userId)
+			// set cache val to have an access from the main API
+			cache.SetWalletData(userId, flag, address)
 		case "ton":
-			theopennetwork.CreateWallet(testId)
+			address = theopennetwork.CreateWallet(userId)
+			// set cache val to have an access from the main API
+			cache.SetWalletData(userId, flag, address)
 		default:
 			fmt.Println("Unknown blockchain")
 		}
 
-		fmt.Println("gwlt done")
+		execTime := time.Now().UnixMilli() - stamp
+		fmt.Println("gwlt done in ", execTime, "ms")
 	},
 }
 

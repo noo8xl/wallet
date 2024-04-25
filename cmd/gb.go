@@ -8,6 +8,7 @@ import (
 	"time"
 	"wallet-cli/api"
 	"wallet-cli/crypto-lib/bitcoin"
+	"wallet-cli/crypto-lib/ethereum"
 	theopennetwork "wallet-cli/crypto-lib/the-open-network"
 
 	"github.com/spf13/cobra"
@@ -54,12 +55,12 @@ var gbCmd = &cobra.Command{
 		case "ton":
 			balance = theopennetwork.GetTonBalanceByAddress(address)
 			fiatBalance = api.GetRate("the-open-network", currencyType)
-		// case "eth":
-		// 	balance = theopennetwork.GetTonBalanceByAddress(address)
-		// 	fiatBalance = api.GetRate("ethereum", "usd")
+		case "eth":
+			balance = ethereum.GetEthBalanceByAddress(address)
+			fiatBalance = api.GetRate("ethereum", currencyType)
 		// case "trx":
 		// 	balance = theopennetwork.GetTonBalanceByAddress(address)
-		// 	fiatBalance = api.GetRate("tron", "usd")
+		// 	fiatBalance = api.GetRate("tron", currencyType)
 		default:
 			fmt.Println("Unknown blockchain")
 		}
@@ -68,7 +69,7 @@ var gbCmd = &cobra.Command{
 		balInUsd := new(big.Float).SetPrec(20).Mul(f, balance)
 
 		execTime := time.Now().UnixMilli() - stamp
-		log.Println(flag, "balance is ->", balance, "= $", balInUsd)
+		log.Println(flag, "balance is ->", balance, "=", currencyType, ":", balInUsd)
 		fmt.Println("gb done in ", execTime, "ms")
 	},
 }

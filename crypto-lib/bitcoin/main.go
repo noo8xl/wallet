@@ -73,7 +73,7 @@ func GetBitcoinAddressBalance(address string) *big.Float {
 
 	log.Println("adr -> ", address)
 	// ###################################################
-	// ######## DOESN"T WORK AT THE TEST NET! ############
+	// ######## DOESN"T WORK IN THE TEST-NET! ############
 	// ###################################################
 
 	// balance value from API will be receive in satoshi value
@@ -122,7 +122,7 @@ func initBlockchain(c string) {
 		bc = gobcy.API{}
 		bc.Token = apiToken
 		bc.Coin = c        // options: "btc","bcy","ltc","doge","eth"
-		bc.Chain = "test3" // depending on coin: "main","test3","test"
+		bc.Chain = "test3" // depend on coin: "main","test3","test"
 
 		fmt.Println("blockchain is->", bc.Chain)
 	}

@@ -6,9 +6,15 @@
 
 -> set cache after create wallet to have an access from main API ---- => done +
 
--> btc test net transaction logic
+-> eth create wallet ---- => done +
 
--> ton test net transaction logic
+-> eth get balance ---- => done +
+
+#######################################
+-> btc test net transaction logic <- ##
+-> eth test net transaction logic <- ##
+-> ton test net transaction logic <- ##
+#######################################
 
 -> connect to the notification API via http ???
 
@@ -16,15 +22,11 @@
 
 ---> compile and install as a cli-app
 
----> connect with node.js app as walelt handler <---
+---> connect with node.js app as wallet handler <---
 
 -------------------> after first release:
 
 add more blockchains options:
-
--> eth create wallet
--> eth get balance
--> eth test net send transaction
 
 +++ trx
 

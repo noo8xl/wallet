@@ -7,6 +7,8 @@ import (
 	"wallet-cli/lib/models"
 )
 
+// doc is -> https://github.com/go-sql-driver/mysql/wiki/Examples
+
 // InsertBtcWallet -> insert user wallet data to db
 func InsertBtcWallet(dto models.BtcWallet) error {
 
@@ -15,6 +17,21 @@ func InsertBtcWallet(dto models.BtcWallet) error {
 
 	// * pubKeys are temporary excluded  *
 	sql := "INSERT INTO btcWallets (address, privateKey, publicKey, wif, scriptType, originalAddress, oapAddress, userId) VALUES (?,?,?,?,?,?,?,?)"
+	res := db.QueryRow(sql, dto.Address, dto.PrivateKey, dto.PublicKey, dto.Wif, dto.ScriptType, dto.OriginalAddress, dto.OAPAddress, dto.UserId)
+	fmt.Println("sql result is -> ", res)
+
+	return res.Err()
+}
+
+// InsertEthWallet -> insert user wallet data to db
+func InsertEthWallet(dto models.EthWallet) error {
+
+	// ctx := context.Background()
+	db := dbConnect()
+	defer db.Close()
+
+	// * pubKeys are temporary excluded  *
+	sql := "INSERT INTO ethWallets (address, privateKey, publicKey, wif, scriptType, originalAddress, oapAddress, userId) VALUES (?,?,?,?,?,?,?,?)"
 	res := db.QueryRow(sql, dto.Address, dto.PrivateKey, dto.PublicKey, dto.Wif, dto.ScriptType, dto.OriginalAddress, dto.OAPAddress, dto.UserId)
 	fmt.Println("sql result is -> ", res)
 
@@ -30,13 +47,26 @@ func InsertTonWallet(dto models.TonWallet) error {
 
 	// should be updated
 	sql := "INSERT INTO tonWallets (address, addrType, privateKey, bitsLen, userId) VALUES (?,?,?,?,?)"
-	res, err := db.Query(sql, dto.Address, dto.AddrType, dto.PrivateKey, dto.BitsLen, dto.UserId)
-
+	res := db.QueryRow(sql, dto.Address, dto.AddrType, dto.PrivateKey, dto.BitsLen, dto.UserId)
 	fmt.Println("sql result is -> ", res)
-	fmt.Println("err ->\n", err)
 
-	return err
+	return res.Err()
 }
+
+// InsertTrxWallet -> insert user wallet data to db
+// func InsertTrxWallet(dto models.TonWallet) error {
+
+// 	// ctx := context.Background()
+// 	db := dbConnect()
+// 	defer db.Close()
+
+// 	// should be updated
+// 	sql := "INSERT INTO tonWallets (address, addrType, privateKey, bitsLen, userId) VALUES (?,?,?,?,?)"
+// 	res := db.QueryRow(sql, dto.Address, dto.AddrType, dto.PrivateKey, dto.BitsLen, dto.UserId)
+// fmt.Println("sql result is -> ", res)
+
+// return res.Err()
+// }
 
 // #####################################################
 // ############# select area ###########################

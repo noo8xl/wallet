@@ -19,6 +19,11 @@ tasks:
     cmds:
       - GOFLAGS=-mod=mod go run main.go gwlt btc test-user-id
 
+  gwt-eth:
+    desc: Run the get wallet command to create a ETH ome-time address
+    cmds:
+      - GOFLAGS=-mod=mod go run main.go gwlt eth test-user-id
+
   gwt-ton:
     desc: Run the get wallet command to create a ton ome-time address
     cmds:
@@ -31,6 +36,12 @@ tasks:
     cmds:
       # second flag should be an btc address
       - GOFLAGS=-mod=mod go run main.go gb btc bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh usd
+
+  gb-eth:
+    desc: Run the get balance command to get a eth balance data by address
+    cmds:
+      # second flag should be a eth address
+      - GOFLAGS=-mod=mod go run main.go gb eth 0xBA401CdaC1A3b6AEeDe21c9C4a483be6C29F88C5 aed
 
   gb-ton:
     desc: Run the get balance command to get a ton balance data by address

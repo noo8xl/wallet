@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 	"wallet-cli/crypto-lib/bitcoin"
+	"wallet-cli/crypto-lib/ethereum"
 	theopennetwork "wallet-cli/crypto-lib/the-open-network"
 	"wallet-cli/lib/cache"
 
@@ -49,6 +51,10 @@ var gwltCmd = &cobra.Command{
 			address = bitcoin.CreateWallet(userId)
 			// set cache val to have an access from the main API
 			cache.SetWalletData(userId, flag, address)
+		case "eth":
+			address = ethereum.CreateWallet(userId)
+			// set cache val to have an access from the main API
+			cache.SetWalletData(userId, flag, address)
 		case "ton":
 			address = theopennetwork.CreateWallet(userId)
 			// set cache val to have an access from the main API
@@ -58,6 +64,7 @@ var gwltCmd = &cobra.Command{
 		}
 
 		execTime := time.Now().UnixMilli() - stamp
+		log.Println("ETH address is -> ", address)
 		fmt.Println("gwlt done in ", execTime, "ms")
 	},
 }

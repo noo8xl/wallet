@@ -3,71 +3,78 @@ package ethereum
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"math/big"
+	"os"
+	"time"
+	"wallet-cli/database"
 	"wallet-cli/lib/config"
-	"wallet-cli/lib/helpers"
+	"wallet-cli/lib/models"
 
 	"github.com/blockcypher/gobcy/v2"
 )
 
-// get api token here
-var apiToken string = config.GetEthereumAPIKey()
 var bc gobcy.API
+var apiToken string = config.GetEthereumAPIKey()
 
 // ----------------------------------------------------------------
 
 // CreateWallet is in charge of creating a new root wallet
-func CreateWallet(userID string) bool {
-
-	var err error
-	var w gobcy.Wallet
-	var addressKeys gobcy.AddrKeychain
-
+func CreateWallet(userID string) string {
 	initBlockchain("eth")
-	addressKeys, err = bc.GenAddrKeychain()
-	if err != nil {
-		return false
-	}
+	stamp := time.Now().UnixMilli()
 
-	fmt.Println("generated address is\n->", addressKeys)
-	// normal wallet
-	w, err = bc.CreateWallet(gobcy.Wallet{
-		Name:      "test",
-		Addresses: []string{addressKeys.Address},
-	})
+	addressKeys, err := bc.GenAddrKeychain()
 	if err != nil {
-		return false
+		panic(err)
 	} else {
+		fmt.Println("wallet is ->\n", addressKeys)
+		wt := models.EthWallet{
+			Address:         addressKeys.Address,
+			PrivateKey:      addressKeys.Private,
+			PublicKey:       addressKeys.Public,
+			Wif:             addressKeys.Wif,
+			ScriptType:      addressKeys.ScriptType,
+			OriginalAddress: addressKeys.OriginalAddress,
+			OAPAddress:      addressKeys.OAPAddress,
+			CreatedAt:       stamp,
+			UpdatedAt:       stamp,
+			UserId:          userID,
+			// PubKeys:         addressKeys.PubKeys,
+		}
 
-		// -> save wallet were !
-
-		fmt.Printf("Normal Wallet:%+v\n", w)
-		return true
+		fmt.Println("wt -> ", wt)
+		// -> save wallet to main db <-
+		if err := database.InsertEthWallet(wt); err != nil {
+			log.Println("database insertion error", err)
+			os.Exit(1)
+		}
 	}
 
+	// returt eth address
+	fmt.Println("generated eth address is\n->", addressKeys)
+	return addressKeys.Address
 }
 
 // GetEthereumAddressBalance -> get balance by address
-func GetEthereumAddressBalance(addr string) *big.Float {
-	var addressData gobcy.Addr
-	var err error
-	var currentBalance *big.Float
+func GetEthBalanceByAddress(addr string) *big.Float {
 	initBlockchain("eth")
+	currentBalance := new(big.Float)
 
-	addressData, err = bc.GetAddrBal(addr, nil)
+	// ###################################################
+	// ######## DOESN"T WORK IN THE TEST-NET! ############
+	// ###################################################
+
+	addressData, err := bc.GetAddrBal(addr, nil)
 	if err != nil {
-		return currentBalance
+		fmt.Println("err is -> ", err)
 	}
 
-	fmt.Println("addressData -> ")
-	helpers.PrintPretty(addressData)
-
-	currentBalance = new(big.Float)
 	currentBalance.SetString(addressData.Balance.String())
-	ethValue := new(big.Float).Quo(currentBalance, big.NewFloat(math.Pow10(18)))
+	ethValue := new(big.Float).Quo(currentBalance, big.NewFloat(math.Pow10(20)))
 
-	fmt.Println("balance -> ", ethValue)
+	fmt.Println("balance -> ", currentBalance)
 	return ethValue
 }
 
@@ -83,14 +90,9 @@ func initBlockchain(c string) {
 		bc = gobcy.API{}
 		bc.Token = apiToken
 		bc.Coin = c       //options: "btc","bcy","ltc","doge","eth"
-		bc.Chain = "main" //depending on coin: "main","test3","test"
+		bc.Chain = "main" //depend on coin: "main","test3","test"
 
 		fmt.Println("blockchain  ->", bc)
 	}
 
 }
-
-// func saveWallet(gobcy.AddrKeychain) bool {
-
-// 	return true
-// }

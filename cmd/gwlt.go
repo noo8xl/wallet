@@ -8,63 +8,63 @@ import (
 	"wallet-cli/crypto-lib/bitcoin"
 	"wallet-cli/crypto-lib/ethereum"
 	theopennetwork "wallet-cli/crypto-lib/the-open-network"
-	"wallet-cli/lib/cache"
+	"wallet-cli/crypto-lib/tron"
+	"wallet-cli/lib/exceptions"
 
 	"github.com/spf13/cobra"
 )
 
 // gwltCmd represents the gwlt <get wallet> command
 var gwltCmd = &cobra.Command{
-	Use:   "gwlt",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-				and usage of using your command. For example:
-
-				Cobra is a CLI library for Go that empowers applications.
-				This application is a tool to generate the needed files
-				to quickly create a Cobra application.`,
+	Use:     "get-wallet",
+	Aliases: []string{"gwlt"},
+	Short:   "Generate a new address.",
+	Long: `Generate a new address in the chosen blockchain and
+		returns a string address result. There should be a two arguments:
+		-> first = a coin name;
+		-> second = is a userId.
+		
+	If something will goes wrong -> an app will throw an error and exit. 
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		stamp := time.Now().UnixMilli()
 
-		var flag string
+		var coin string
 		var userId string
 		var address string
 
-		if len(args) == 0 {
+		if len(args) < 2 {
 			os.Exit(1)
 		} else {
 
-			flag = args[0]
+			coin = args[0]
 			userId = args[1]
 
-			fmt.Println("coin name is -> ", flag)
-			fmt.Println("userId is -> ", userId)
+			// fmt.Println("coin name is -> ", coin)
+			// fmt.Println("userId is -> ", userId)
 		}
 
-		switch flag {
+		switch coin {
 		case "create":
 			// run go routine to create a list of all available wallets
 			// return a []list of structs -> {coinName: "", address: "", userId: ""}
 			// set cache data with generated []list
 		case "btc":
 			address = bitcoin.CreateWallet(userId)
-			// set cache val to have an access from the main API
-			cache.SetWalletData(userId, flag, address)
+			// set cache here ? <-
 		case "eth":
 			address = ethereum.CreateWallet(userId)
-			// set cache val to have an access from the main API
-			cache.SetWalletData(userId, flag, address)
+		case "trx":
+			address = tron.CreateWallet(userId)
 		case "ton":
 			address = theopennetwork.CreateWallet(userId)
-			// set cache val to have an access from the main API
-			cache.SetWalletData(userId, flag, address)
 		default:
-			fmt.Println("Unknown blockchain")
+			exceptions.HandleAnException("Unknown blockchain")
 		}
 
 		execTime := time.Now().UnixMilli() - stamp
-		log.Println("ETH address is -> ", address)
+		log.Println(coin, "generated address is -> ", address)
 		fmt.Println("gwlt done in ", execTime, "ms")
 	},
 }

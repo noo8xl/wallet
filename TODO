@@ -24,10 +24,29 @@
 
 ---> connect with node.js app as wallet handler <---
 
--------------------> after first release:
+##############################
+--> after the first release: #
+##############################
 
 add more blockchains options:
+
++++ implement a balance parser logic ----!!!----
 
 +++ trx
 
 +++ ?
+
+-
+-
+-
+-
+-
+-
+- cache watcher
+  if there is some value -> pay it
+-
+-
+-
+-
+-
+- --

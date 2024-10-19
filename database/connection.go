@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"time"
-	"wallet-cli/lib/config"
+	"wallet-cli/config"
 
 	_ "github.com/go-sql-driver/mysql"
 )

@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -17,24 +18,22 @@ import (
 // doc is here -> https://www.coingecko.com/api/documentation <-
 
 // GetRate -> get coin rate by coinName (usd value)
-func GetRate(coinName, currency string) float64 {
+func GetRate(coinName string, currency string) float64 {
 
-	var rate float64
-	var resp []map[string]interface{}
-	url := strings.Join([]string{"https://api.coingecko.com/api/v3/coins/markets?vs_currency=", currency, "&ids=", coinName}, "")
-	// fmt.Println("reseived data is ->\n", url)
+	var resp map[string]map[string]float64
+	uri := strings.Join([]string{"https://api.coingecko.com/api/v3/simple/price?ids=", coinName, "&vs_currencies=", currency}, "")
+	// fmt.Println("cur uri is ->\n", uri)
 
-	res, err := http.Get(url)
+	res, err := http.Get(uri)
 	if err != nil {
+		log.Println("GetRate http api error")
 		os.Exit(1)
 	}
 	defer res.Body.Close()
 
 	resBody, _ := io.ReadAll(res.Body)
 	json.Unmarshal(resBody, &resp)
+	// log.Println("resp  -> ", resp[coinName][currency])
 
-	rate = resp[0]["current_price"].(float64)
-	// log.Println("rate -> ", rate)
-
-	return rate
+	return resp[coinName][currency]
 }

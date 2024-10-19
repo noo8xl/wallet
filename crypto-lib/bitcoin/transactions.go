@@ -12,7 +12,7 @@ import (
 // https://www.blockcypher.com/dev/?go#introduction -> doc is here <-
 
 // CreateSingleBitcoinTransactionSkeleton -> create transaction skeleton, sign in locally and send to user for validate it
-func CreateSingleBitcoinTransactionSkeleton(dto models.SendTransactionDto) string {
+func SendSingleBtcTransaction(dto models.SendTransactionDto) string {
 
 	//  -> https://medium.com/coinmonks/estep-by-step-create-and-broadcast-a-bitcoin-transaction-on-testnet-588daacc2b7a
 
@@ -53,6 +53,7 @@ func CreateSingleBitcoinTransactionSkeleton(dto models.SendTransactionDto) strin
 	fmt.Printf("skeleton is => %+v\n", skeleton)
 
 	// cache.SetTransCache(skeleton)
+	// set cache here with {key: walletAddress; value: tsxHash}
 	return ""
 	// return pushBtcTransaction(skeleton.Trans.Hash)
 }

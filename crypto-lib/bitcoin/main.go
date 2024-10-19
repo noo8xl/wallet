@@ -7,8 +7,8 @@ import (
 	"math/big"
 	"os"
 	"time"
+	"wallet-cli/config"
 	"wallet-cli/database"
-	"wallet-cli/lib/config"
 	"wallet-cli/lib/models"
 
 	"github.com/blockcypher/gobcy/v2"
@@ -71,7 +71,7 @@ func CreateOneTimeBitcoinAddress(userID string) (string, error) {
 // GetBitcoinAddressBalance -> get balance by address
 func GetBitcoinAddressBalance(address string) *big.Float {
 
-	log.Println("adr -> ", address)
+	// log.Println("adr -> ", address)
 	// ###################################################
 	// ######## DOESN"T WORK IN THE TEST-NET! ############
 	// ###################################################
@@ -101,12 +101,6 @@ func GetBitcoinAddressBalance(address string) *big.Float {
 	currentBalance.SetString(addressData.Balance.String())
 
 	bal := new(big.Float).Mul(currentBalance, big.NewFloat(satoshiPerByte))
-
-	// tested with this wallet ->
-	// -> bc1qf27zs0gyyfkankywsppx5dxgxm8lufgh9jhxw9
-	// expected value is -> 0.00_000_598
-	// but receive -> 5.98e-06
-
 	return bal
 }
 
@@ -121,8 +115,9 @@ func initBlockchain(c string) {
 	} else {
 		bc = gobcy.API{}
 		bc.Token = apiToken
-		bc.Coin = c        // options: "btc","bcy","ltc","doge","eth"
-		bc.Chain = "test3" // depend on coin: "main","test3","test"
+		bc.Coin = c // options: "btc","bcy","ltc","doge","eth"
+		// bc.Chain = "test3" // depend on coin: "main","test3","test"\
+		bc.Chain = "main"
 
 		fmt.Println("blockchain is->", bc.Chain)
 	}

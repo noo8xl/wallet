@@ -8,8 +8,8 @@ import (
 	"math/big"
 	"os"
 	"time"
+	"wallet-cli/config"
 	"wallet-cli/database"
-	"wallet-cli/lib/config"
 	"wallet-cli/lib/models"
 
 	"github.com/blockcypher/gobcy/v2"
@@ -76,6 +76,10 @@ func GetEthBalanceByAddress(addr string) *big.Float {
 
 	fmt.Println("balance -> ", currentBalance)
 	return ethValue
+}
+
+func SendSingleEthTransaction(dto models.SendTransactionDto) {
+	return
 }
 
 // ===========================================================================================//

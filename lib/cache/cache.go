@@ -2,7 +2,7 @@ package cache
 
 import (
 	"log"
-	config "wallet-cli/lib/config"
+	"wallet-cli/config"
 
 	"github.com/go-redis/redis"
 )

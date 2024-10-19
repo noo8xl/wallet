@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
+	"wallet-cli/crypto-lib/bitcoin"
+	"wallet-cli/crypto-lib/ethereum"
 	theopennetwork "wallet-cli/crypto-lib/the-open-network"
-	"wallet-cli/database"
+	"wallet-cli/crypto-lib/tron"
+	"wallet-cli/lib/exceptions"
 	"wallet-cli/lib/models"
 
 	"github.com/spf13/cobra"
@@ -23,6 +25,7 @@ var tsxCmd = &cobra.Command{
 				This application is a tool to generate the needed files
 				to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+
 		var tsxDto models.SendTransactionDto
 		stamp := time.Now().UnixMilli()
 
@@ -42,17 +45,21 @@ var tsxCmd = &cobra.Command{
 		fmt.Println("dto ->\n", tsxDto)
 
 		switch args[0] {
+
 		case "btc":
-			str := database.SelectBtcPrivate(tsxDto.SenderAddress)
-			log.Println("str is -> ", str)
+			bitcoin.SendSingleBtcTransaction(tsxDto)
+		case "eth":
+			ethereum.SendSingleEthTransaction(tsxDto)
 		case "ton":
 			theopennetwork.SendSingleTonTransaction(tsxDto)
+		case "trx":
+			tron.SendSingleTrxTransaction(tsxDto)
 		default:
-			fmt.Println("Unknown blockchain")
+			exceptions.HandleAnException("Unknown blockchain")
 		}
 
 		execTime := time.Now().UnixMilli() - stamp
-		fmt.Println("tsx done in ", execTime, "ms")
+		fmt.Println("tsx sent in ", execTime, " ms.")
 	},
 }
 

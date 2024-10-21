@@ -56,8 +56,8 @@ func ValidateTrxAddress(addr string) bool {
 	return response.Result
 }
 
-func SendSingleTrxTransaction(dto models.SendTransactionDto) {
-	// return
+func SendSingleTrxTransaction(dto models.SendTransactionDto) string {
+	return ""
 }
 
 // ===========================================================================================//

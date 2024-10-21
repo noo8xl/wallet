@@ -2,13 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"time"
 	"wallet-cli/crypto-lib/bitcoin"
 	"wallet-cli/crypto-lib/ethereum"
 	theopennetwork "wallet-cli/crypto-lib/the-open-network"
 	"wallet-cli/crypto-lib/tron"
 	"wallet-cli/lib/exceptions"
+	"wallet-cli/lib/helpers"
 	"wallet-cli/lib/models"
 
 	"github.com/spf13/cobra"
@@ -26,40 +25,31 @@ var tsxCmd = &cobra.Command{
 				to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		var hash string
 		var tsxDto models.SendTransactionDto
-		stamp := time.Now().UnixMilli()
 
-		if len(args) == 0 || len(args) < 4 {
-			os.Exit(1)
-		} else {
-			for _, item := range args {
-				fmt.Println("flag is -> ", item)
-			}
+		helpers.ValidateArgs(len(args), 4)
 
-			tsxDto.CoinName = args[0]
-			tsxDto.SenderAddress = args[1]
-			tsxDto.RecipientAddress = args[2]
-			tsxDto.Amount = args[3]
-		}
-
-		fmt.Println("dto ->\n", tsxDto)
+		tsxDto.CoinName = args[0]
+		tsxDto.SenderAddress = args[1]
+		tsxDto.RecipientAddress = args[2]
+		tsxDto.Amount = args[3]
 
 		switch args[0] {
 
 		case "btc":
-			bitcoin.SendSingleBtcTransaction(tsxDto)
+			hash = bitcoin.SendSingleBtcTransaction(tsxDto)
 		case "eth":
-			ethereum.SendSingleEthTransaction(tsxDto)
+			hash = ethereum.SendSingleEthTransaction(tsxDto)
 		case "ton":
-			theopennetwork.SendSingleTonTransaction(tsxDto)
+			hash = theopennetwork.SendSingleTonTransaction(tsxDto)
 		case "trx":
-			tron.SendSingleTrxTransaction(tsxDto)
+			hash = tron.SendSingleTrxTransaction(tsxDto)
 		default:
 			exceptions.HandleAnException("Unknown blockchain")
 		}
 
-		execTime := time.Now().UnixMilli() - stamp
-		fmt.Println("tsx sent in ", execTime, " ms.")
+		fmt.Println(hash)
 	},
 }
 

@@ -4,7 +4,7 @@ tasks:
   build:
     desc: Build the app
     cmds:
-      - GOFLAGS=-mod=mod go build -o bin/wallet-cli main.go
+      - GOFLAGS=-mod=mod go build -o bin/wallet-cli main.go | cp bin/wallet-cli ../crypto_app/cryptoAutopaymentApi
 
   # ---------------------------------- get wallet commands ------------------------------------------------
 
@@ -41,7 +41,7 @@ tasks:
     desc: Run the get balance command to get a eth balance data by address
     cmds:
       # second flag should be a eth address
-      - GOFLAGS=-mod=mod go run main.go gb eth 0xBA401CdaC1A3b6AEeDe21c9C4a483be6C29F88C5 aed
+      - GOFLAGS=-mod=mod go run main.go gb eth 0x165CD37b4C644C2921454429E7F9358d18A45e14 usd
 
   gb-ton:
     desc: Run the get balance command to get a ton balance data by address

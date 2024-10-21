@@ -26,7 +26,10 @@ func HandleAnException(e string) {
 		log.Println("cannot create a file.")
 		os.Exit(1)
 	}
-	defer file.Close()
+	defer func() {
+		file.Close()
+		os.Exit(1)
+	}()
 
 	_, err = file.WriteString(e)
 	if err != nil {

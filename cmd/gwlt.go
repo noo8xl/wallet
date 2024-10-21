@@ -2,14 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"log"
-	"os"
-	"time"
 	"wallet-cli/crypto-lib/bitcoin"
 	"wallet-cli/crypto-lib/ethereum"
 	theopennetwork "wallet-cli/crypto-lib/the-open-network"
 	"wallet-cli/crypto-lib/tron"
 	"wallet-cli/lib/exceptions"
+	"wallet-cli/lib/helpers"
 
 	"github.com/spf13/cobra"
 )
@@ -28,22 +26,14 @@ var gwltCmd = &cobra.Command{
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		stamp := time.Now().UnixMilli()
-
 		var coin string
 		var userId string
 		var address string
 
-		if len(args) < 2 {
-			os.Exit(1)
-		} else {
+		helpers.ValidateArgs(len(args), 2)
 
-			coin = args[0]
-			userId = args[1]
-
-			// fmt.Println("coin name is -> ", coin)
-			// fmt.Println("userId is -> ", userId)
-		}
+		coin = args[0]
+		userId = args[1]
 
 		switch coin {
 		case "create":
@@ -63,9 +53,7 @@ var gwltCmd = &cobra.Command{
 			exceptions.HandleAnException("Unknown blockchain")
 		}
 
-		execTime := time.Now().UnixMilli() - stamp
-		log.Println(coin, "generated address is -> ", address)
-		fmt.Println("gwlt done in ", execTime, "ms")
+		fmt.Println(address)
 	},
 }
 

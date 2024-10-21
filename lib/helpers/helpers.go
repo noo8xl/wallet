@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"os"
 )
 
 // PrintPretty -> print pretty struct variables
@@ -20,4 +21,12 @@ func ToFixed(num float64, precision int) float64 {
 
 func round(num float64) int {
 	return int(num + math.Copysign(0.5, num))
+}
+
+// ValidateArgs -> validate range of arguments
+func ValidateArgs(argsLen int, expectedValue int) {
+	if argsLen < expectedValue {
+		fmt.Println("wrong args range")
+		os.Exit(1)
+	}
 }

@@ -19,6 +19,7 @@ var apiToken = config.GetBitcoinAPIKey()
 
 // CreateWallet is in charge of creating a new root wallet
 func CreateWallet(userID string) string {
+
 	initBlockchain("btc")
 	stamp := time.Now().UnixMilli()
 
@@ -62,8 +63,6 @@ func CreateOneTimeBitcoinAddress(userID string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	// cache.SetNewWalletCoinItemData(addressKeys)
 
 	return addressKeys.Address, nil
 }
@@ -117,7 +116,7 @@ func initBlockchain(c string) {
 		bc.Token = apiToken
 		bc.Coin = c // options: "btc","bcy","ltc","doge","eth"
 		// bc.Chain = "test3" // depend on coin: "main","test3","test"\
-		bc.Chain = "main"
+		bc.Chain = "test3"
 
 		fmt.Println("blockchain is->", bc.Chain)
 	}

@@ -2,15 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"math/big"
-	"os"
-	"time"
 	"wallet-cli/api"
 	"wallet-cli/crypto-lib/bitcoin"
 	"wallet-cli/crypto-lib/ethereum"
 	theopennetwork "wallet-cli/crypto-lib/the-open-network"
 	"wallet-cli/lib/exceptions"
+	"wallet-cli/lib/helpers"
 
 	"github.com/spf13/cobra"
 )
@@ -32,27 +30,22 @@ var gbCmd = &cobra.Command{
 		var currencyType string
 		var balance *big.Float
 		var fiatBalance float64
+		// var response models.ResponseBalance
 		f := new(big.Float)
-		stamp := time.Now().UnixMilli()
 
-		if len(args) == 0 {
-			os.Exit(1)
-		} else {
+		helpers.ValidateArgs(len(args), 3)
 
-			coin = args[0]
-			address = args[1]
-			currencyType = args[2]
+		coin = args[0]
+		address = args[1]
+		currencyType = args[2]
 
-			// fmt.Println("coin name is -> ", coin)
-			// fmt.Println("coin address is -> ", address)
-			// fmt.Println("currency type is -> ", currencyType)
-
-		}
+		// fmt.Println("coin name is -> ", coin)
+		// fmt.Println("coin address is -> ", address)
+		// fmt.Println("currency type is -> ", currencyType)
 
 		switch coin {
 		case "btc":
 			balance = bitcoin.GetBitcoinAddressBalance(address)
-			// balance =
 			fiatBalance = api.GetRate("bitcoin", currencyType)
 		case "ton":
 			balance = theopennetwork.GetTonBalanceByAddress(address)
@@ -68,11 +61,15 @@ var gbCmd = &cobra.Command{
 		}
 
 		f.SetFloat64(fiatBalance)
-		balInUsd := new(big.Float).SetPrec(20).Mul(f, balance)
+		formattedFiatBalance := new(big.Float).SetPrec(20).Mul(f, balance)
 
-		execTime := time.Now().UnixMilli() - stamp
-		log.Println(coin, "balance is ->", balance, "=", currencyType, ":", balInUsd)
-		fmt.Println("gb done in ", execTime, "ms")
+		// response.CoinName = coin
+		// response.CoinBalance = balance
+		// response.CurrencyType = currencyType
+		// response.FiatAmount = formattedFiatBalance
+
+		// write response to the redis ?
+		fmt.Println(coin, balance, currencyType, formattedFiatBalance)
 	},
 }
 

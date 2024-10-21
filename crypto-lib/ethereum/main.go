@@ -74,12 +74,12 @@ func GetEthBalanceByAddress(addr string) *big.Float {
 	currentBalance.SetString(addressData.Balance.String())
 	ethValue := new(big.Float).Quo(currentBalance, big.NewFloat(math.Pow10(20)))
 
-	fmt.Println("balance -> ", currentBalance)
+	// fmt.Println("balance -> ", currentBalance)
 	return ethValue
 }
 
-func SendSingleEthTransaction(dto models.SendTransactionDto) {
-	return
+func SendSingleEthTransaction(dto models.SendTransactionDto) string {
+	return ""
 }
 
 // ===========================================================================================//
@@ -96,7 +96,7 @@ func initBlockchain(c string) {
 		bc.Coin = c       //options: "btc","bcy","ltc","doge","eth"
 		bc.Chain = "main" //depend on coin: "main","test3","test"
 
-		fmt.Println("blockchain  ->", bc)
+		// fmt.Println("blockchain  ->", bc)
 	}
 
 }

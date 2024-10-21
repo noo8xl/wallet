@@ -13,28 +13,6 @@ DROP TABLE IF EXISTS customer_base;
 DROP PROCEDURE IF EXISTS update_wallet_balance;
 
 
-CREATE TABLE IF NOT EXISTS customer_base (
-    id INT NOT NULL AUTO_INCREMENT,
-    name varchar(30) NOT NULL,
-    email varchar(250) NOT NULL,
-    password varchar(30) NOT NULL,
-
-    PRIMARY KEY (id)
-);
-
-
-CREATE TABLE IF NOT EXISTS customer_details (
-    id INT NOT NULL AUTO_INCREMENT,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-    is_banned Boolean NOT NULL DEFAULT 0,
-    role varchar(10) NOT NULL DEFAULT 'USER',
-    customer_id INT NOT NULL,
-
-    FOREIGN KEY (customer_id) REFERENCES customer_base (id),
-    PRIMARY KEY (id)
-);
-
 CREATE TABLE IF NOT EXISTS wallet_list (
     id INT NOT NULL AUTO_INCREMENT,
     coin_name VARCHAR(20) NOT NULL,
@@ -70,6 +48,7 @@ CREATE TABLE IF NOT EXISTS wallet_params (
     PRIMARY KEY (id)
 );
 
+
 DELIMITER $$
 CREATE PROCEDURE IF NOT EXISTS update_wallet_balance(
     IN walletId INT,
@@ -77,15 +56,25 @@ CREATE PROCEDURE IF NOT EXISTS update_wallet_balance(
 )
 BEGIN
 
-    UPDATE wallet_list
-        SET balance=newBalance
-        WHERE id=walletId;
+    BEGIN TRY
 
-    UPDATE wallet_params
-        SET is_checked=true, updated_at=CURRENT_TIMESTAMP()
-        WHERE wallet_id=walletId;
+        UPDATE wallet_list
+            SET balance=newBalance
+            WHERE id=walletId;
 
-    COMMIT ;
+        UPDATE wallet_params
+            SET is_checked=true, updated_at=CURRENT_TIMESTAMP()
+            WHERE wallet_id=walletId;
+
+        COMMIT ;
+
+    END TRY
+
+    BEGIN CATCH
+
+        ROLLBACK ;
+
+    END CATCH  
 
 END $$
 DELIMITER ;
@@ -93,9 +82,31 @@ DELIMITER ;
 CALL update_wallet_balance(1,0.332);
 
 
-CREATE VIEW get_parser_statistics AS
-    SELECT COUNT(id) AS checked_wallets
-    FROM wallet_params
-    WHERE is_checked=true
 
 # is checked count, is used count, coins found, coins sent
+
+
+
+
+
+CREATE TABLE IF NOT EXISTS customer_base (
+    id INT NOT NULL AUTO_INCREMENT,
+    name varchar(30) NOT NULL,
+    email varchar(250) NOT NULL,
+    password varchar(30) NOT NULL,
+
+    PRIMARY KEY (id)
+);
+
+
+CREATE TABLE IF NOT EXISTS customer_details (
+    id INT NOT NULL AUTO_INCREMENT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+    is_banned Boolean NOT NULL DEFAULT 0,
+    role varchar(10) NOT NULL DEFAULT 'USER',
+    customer_id INT NOT NULL,
+
+    FOREIGN KEY (customer_id) REFERENCES customer_base (id),
+    PRIMARY KEY (id)
+);

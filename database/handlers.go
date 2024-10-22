@@ -90,7 +90,7 @@ func SelectBtcPrivate(address string) string {
 }
 
 // SelectTonPrivate -> get private key by address and userId
-func SelectTonPrivate(address, userId string) []byte {
+func SelectTonPrivate(address string) []byte {
 
 	var pKey []byte
 	db := dbConnect()

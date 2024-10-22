@@ -78,10 +78,6 @@ func GetEthBalanceByAddress(addr string) *big.Float {
 	return ethValue
 }
 
-func SendSingleEthTransaction(dto models.SendTransactionDto) string {
-	return ""
-}
-
 // ===========================================================================================//
 // ============================ init the blockchain connection ===============================//
 // ===========================================================================================//

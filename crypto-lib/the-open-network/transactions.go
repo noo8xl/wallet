@@ -3,18 +3,26 @@ package theopennetwork
 import (
 	"fmt"
 	"wallet-cli/lib/models"
+
+	"github.com/xssnick/tonutils-go/ton"
 )
 
 func SendSingleTonTransaction(dto models.SendTransactionDto) string {
 	// manage smth and send trx ->
-	return sendTransaction(dto)
+	tonAPI := initTonAPIConnection()
+
+	return signAndPushTransaction(dto, tonAPI)
 }
 
 // ===========================================================================================//
 // ============================== function for internal usage ================================//
 // ===========================================================================================//
 
-func sendTransaction(dto models.SendTransactionDto) string {
+func signAndPushTransaction(dto models.SendTransactionDto, api *ton.APIClient) string {
 	fmt.Println("dto ->\n", dto)
-	return "test str hash"
+	fmt.Println("api -> ", api)
+	// privateKey := database.SelectTonPrivate(dto.SenderAddress)
+
+	// Return the transaction hash
+	return "tsx hash"
 }

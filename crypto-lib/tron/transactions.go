@@ -57,17 +57,11 @@ func ValidateTrxAddress(addr string) bool {
 }
 
 func SendSingleTrxTransaction(dto models.SendTransactionDto) string {
-	return ""
+
+	// save a tsx details to db
+	return "hash"
 }
 
 // ===========================================================================================//
 // ============================== function for internal usage ================================//
 // ===========================================================================================//
-
-// func generateTrxAddress() {
-
-// }
-
-// func initTrxNetwork() {
-
-// }

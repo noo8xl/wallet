@@ -14,7 +14,7 @@ DROP PROCEDURE IF EXISTS update_wallet_balance;
 
 
 CREATE TABLE IF NOT EXISTS wallet_list (
-    id INT NOT NULL AUTO_INCREMENT,
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     coin_name VARCHAR(20) NOT NULL,
     address VARCHAR(200) NOT NULL,
     balance FLOAT NOT NULL DEFAULT(0),
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS wallet_list (
 );
 
 CREATE TABLE IF NOT EXISTS wallet_details (
-    id INT NOT NULL AUTO_INCREMENT,
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     private_key VARCHAR(500) NOT NULL,
     public_key VARCHAR(500) NOT NULL,
     seed_phrase VARCHAR(500),
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS wallet_details (
 );
 
 CREATE TABLE IF NOT EXISTS wallet_params (
-    id int NOT NULL AUTO_INCREMENT,
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     is_used BOOL DEFAULT(0),
     is_checked BOOL DEFAULT(0),
     created_at TIMESTAMP NOT NULL,
@@ -74,7 +74,7 @@ BEGIN
 
         ROLLBACK ;
 
-    END CATCH  
+    END CATCH
 
 END $$
 DELIMITER ;
@@ -90,7 +90,7 @@ CALL update_wallet_balance(1,0.332);
 
 
 CREATE TABLE IF NOT EXISTS customer_base (
-    id INT NOT NULL AUTO_INCREMENT,
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name varchar(30) NOT NULL,
     email varchar(250) NOT NULL,
     password varchar(30) NOT NULL,
@@ -100,10 +100,10 @@ CREATE TABLE IF NOT EXISTS customer_base (
 
 
 CREATE TABLE IF NOT EXISTS customer_details (
-    id INT NOT NULL AUTO_INCREMENT,
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-    is_banned Boolean NOT NULL DEFAULT 0,
+    is_banned BOOLEAN NOT NULL DEFAULT 0,
     role varchar(10) NOT NULL DEFAULT 'USER',
     customer_id INT NOT NULL,
 

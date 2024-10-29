@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"os"
+	"wallet-cli/lib/exceptions"
 )
 
 // PrintPretty -> print pretty struct variables
@@ -26,7 +26,11 @@ func round(num float64) int {
 // ValidateArgs -> validate range of arguments
 func ValidateArgs(argsLen int, expectedValue int) {
 	if argsLen < expectedValue {
-		fmt.Println("wrong args range")
-		os.Exit(1)
+		exceptions.HandleAnException("wrong args range")
 	}
+}
+
+func ValidateCard(cardNum string) {
+	// https://gocardless.com/guides/posts/what-is-luhn-algorithm/
+	//
 }

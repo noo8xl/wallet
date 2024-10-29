@@ -20,7 +20,7 @@ func dbConnect() *sql.DB {
 	}
 
 	db.SetConnMaxLifetime(time.Minute * 3)
-	db.SetMaxOpenConns(0)
+	db.SetMaxOpenConns(40)
 	// db.SetMaxIdleConns(40)
 
 	pingErr := db.Ping()

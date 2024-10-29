@@ -19,30 +19,6 @@ func GetTrxBalance(addr string) *big.Float {
 	var reqString string
 	var payload *strings.Reader
 
-	// impl in js ?? <-----------------------
-
-	// reqUrl := strings.Join([]string{"https://apilist.tronscan.org/api/account?address=", addr}, "")
-	// const payload: any = { "address": this.address }
-	// const coinData: any = await axios({
-	// 	method: 'GET',
-	// 	url: reqUrl,
-	// 	headers: payload
-	// })
-	// console.log('coinData => ', coinData);
-	// const dataArray: any = coinData.data.tokens
-	// let trxNetworkCoinBalance: number;
-	// console.log('received data  => ', coinData.data.tokens);
-	// for (let i = 0; i < dataArray.length; i++)
-	// trxNetworkCoinBalance = +dataArray[i].balance / 1_000_000
-
-	// var response struct {
-	// 	balance         int64
-	// 	blockIdentifier struct {
-	// 		hash   string
-	// 		number int64
-	// 	}
-	// }
-
 	currentBalance = new(big.Float)
 	currentBalance.SetString("123")
 

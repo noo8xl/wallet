@@ -19,3 +19,9 @@ type ResponseBalance struct {
 	CurrencyType string
 	FiatAmount   *big.Float
 }
+
+// WalletListItem -> is response of create wallet func
+type WalletListItem struct {
+	CoinName string
+	Address  string
+}

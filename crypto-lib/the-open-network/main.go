@@ -26,7 +26,7 @@ var ctx context.Context
 // https://github.com/xssnick/tonutils-go#Wallet
 // -> the doc is here <-
 
-func CreateWallet(userId string) string {
+func CreateWallet(userId *string) *models.WalletListItem {
 	var err error
 	var words []string
 	var w *wallet.Wallet
@@ -36,7 +36,7 @@ func CreateWallet(userId string) string {
 	words = wallet.NewSeed()
 	w, err = wallet.FromSeed(tonAPI, words, wallet.V4R2)
 	if err != nil {
-		return ""
+		return nil
 	} else {
 		wt := models.TonWallet{
 			Address:    w.WalletAddress().String(),
@@ -45,17 +45,17 @@ func CreateWallet(userId string) string {
 			BitsLen:    w.Address().BitsLen(),
 			CreatedAt:  stamp,
 			UpdatedAt:  stamp,
-			UserId:     userId,
+			UserId:     *userId,
 		}
 		// -> save wallet were to main db!
-		if err := database.InsertTonWallet(wt); err != nil {
+		if err := database.InsertTonWallet(&wt); err != nil {
 			log.Println("database insertion error", err)
 			os.Exit(1)
 		}
 	}
 
-	log.Println("wallet:\n", w.WalletAddress().String())
-	return w.WalletAddress().String()
+	fmt.Println("generated ton address is\n->", w.WalletAddress().String())
+	return &models.WalletListItem{CoinName: "ton", Address: w.WalletAddress().String()}
 }
 
 // GetTonBalanceByAddress -> get balance value by coin address

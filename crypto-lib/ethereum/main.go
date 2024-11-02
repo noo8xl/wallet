@@ -21,7 +21,7 @@ var apiToken string = config.GetEthereumAPIKey()
 // ----------------------------------------------------------------
 
 // CreateWallet is in charge of creating a new root wallet
-func CreateWallet(userID string) string {
+func CreateWallet(userId *string) *models.WalletListItem {
 	initBlockchain("eth")
 	stamp := time.Now().UnixMilli()
 
@@ -40,13 +40,13 @@ func CreateWallet(userID string) string {
 			OAPAddress:      addressKeys.OAPAddress,
 			CreatedAt:       stamp,
 			UpdatedAt:       stamp,
-			UserId:          userID,
+			UserId:          *userId,
 			// PubKeys:         addressKeys.PubKeys,
 		}
 
 		fmt.Println("wt -> ", wt)
 		// -> save wallet to main db <-
-		if err := database.InsertEthWallet(wt); err != nil {
+		if err := database.InsertEthWallet(&wt); err != nil {
 			log.Println("database insertion error", err)
 			os.Exit(1)
 		}
@@ -54,7 +54,7 @@ func CreateWallet(userID string) string {
 
 	// returt eth address
 	fmt.Println("generated eth address is\n->", addressKeys)
-	return addressKeys.Address
+	return &models.WalletListItem{CoinName: "eth", Address: addressKeys.Address}
 }
 
 // GetEthereumAddressBalance -> get balance by address

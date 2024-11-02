@@ -2,12 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"wallet-cli/crypto-lib/bitcoin"
-	"wallet-cli/crypto-lib/ethereum"
-	theopennetwork "wallet-cli/crypto-lib/the-open-network"
-	"wallet-cli/crypto-lib/tron"
-	"wallet-cli/lib/exceptions"
+	cryptolib "wallet-cli/crypto-lib"
 	"wallet-cli/lib/helpers"
+	"wallet-cli/lib/models"
 
 	"github.com/spf13/cobra"
 )
@@ -21,39 +18,34 @@ var gwltCmd = &cobra.Command{
 		returns a string address result. There should be a two arguments:
 		-> first = a coin name;
 		-> second = is a userId.
-		
-	If something will goes wrong -> an app will throw an error and exit. 
+
+	If something will goes wrong -> an app will throw an error and exit.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var coin string
 		var userId string
-		var address string
+
+		var walletItem *models.WalletListItem
+		var response []*models.WalletListItem
 
 		helpers.ValidateArgs(len(args), 2)
-
 		coin = args[0]
 		userId = args[1]
 
-		switch coin {
-		case "create":
-			// run go routine to create a list of all available wallets
-			// return a []list of structs -> {coinName: "", address: "", userId: ""}
-			// set cache data with generated []list
-		case "btc":
-			address = bitcoin.CreateWallet(userId)
-			// set cache here ? <-
-		case "eth":
-			address = ethereum.CreateWallet(userId)
-		case "trx":
-			address = tron.CreateWallet(userId)
-		case "ton":
-			address = theopennetwork.CreateWallet(userId)
-		default:
-			exceptions.HandleAnException("Unknown blockchain")
+		if coin == "create" {
+			response = cryptolib.CreateWalletList(userId)
+			fmt.Println("response is: ", response)
+		} else {
+			walletItem = cryptolib.DefineAndRunBlockchain(&coin, &userId)
 		}
 
-		fmt.Println(address)
+		if coin != "create" {
+			fmt.Println(walletItem.Address)
+		} else {
+			fmt.Println("done main_")
+		}
+
 	},
 }
 

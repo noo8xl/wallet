@@ -6,10 +6,12 @@ import (
 	"math/big"
 	"net/http"
 	"strings"
+	"wallet-cli/lib/models"
 )
 
-func CreateWallet(userId string) string {
-	return ""
+func CreateWallet(userId *string) *models.WalletListItem {
+	fmt.Println("generated ton address is\n->", "tmp empty --")
+	return &models.WalletListItem{CoinName: "trx", Address: "address will be here"}
 }
 
 // GetTrxBalance -> get balance by wallet address

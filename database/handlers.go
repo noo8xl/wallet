@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"strings"
 	"wallet-cli/lib/models"
@@ -10,7 +9,7 @@ import (
 // doc is -> https://github.com/go-sql-driver/mysql/wiki/Examples
 
 // InsertBtcWallet -> insert user wallet data to db
-func InsertBtcWallet(dto models.BtcWallet) error {
+func InsertBtcWallet(dto *models.BtcWallet) error {
 
 	db := dbConnect()
 	defer db.Close()
@@ -18,13 +17,13 @@ func InsertBtcWallet(dto models.BtcWallet) error {
 	// * pubKeys are temporary excluded  *
 	sql := "INSERT INTO btcWallets (address, privateKey, publicKey, wif, scriptType, originalAddress, oapAddress, userId) VALUES (?,?,?,?,?,?,?,?)"
 	res := db.QueryRow(sql, dto.Address, dto.PrivateKey, dto.PublicKey, dto.Wif, dto.ScriptType, dto.OriginalAddress, dto.OAPAddress, dto.UserId)
-	fmt.Println("sql result is -> ", res)
+	// fmt.Println("sql result is -> ", &res)
 
 	return res.Err()
 }
 
 // InsertEthWallet -> insert user wallet data to db
-func InsertEthWallet(dto models.EthWallet) error {
+func InsertEthWallet(dto *models.EthWallet) error {
 
 	// ctx := context.Background()
 	db := dbConnect()
@@ -33,13 +32,13 @@ func InsertEthWallet(dto models.EthWallet) error {
 	// * pubKeys are temporary excluded  *
 	sql := "INSERT INTO ethWallets (address, privateKey, publicKey, wif, scriptType, originalAddress, oapAddress, userId) VALUES (?,?,?,?,?,?,?,?)"
 	res := db.QueryRow(sql, dto.Address, dto.PrivateKey, dto.PublicKey, dto.Wif, dto.ScriptType, dto.OriginalAddress, dto.OAPAddress, dto.UserId)
-	fmt.Println("sql result is -> ", res)
+	// fmt.Println("sql result is -> ", &res)
 
 	return res.Err()
 }
 
 // InsertTonWallet -> insert user wallet data to db
-func InsertTonWallet(dto models.TonWallet) error {
+func InsertTonWallet(dto *models.TonWallet) error {
 
 	// ctx := context.Background()
 	db := dbConnect()
@@ -48,7 +47,7 @@ func InsertTonWallet(dto models.TonWallet) error {
 	// should be updated
 	sql := "INSERT INTO tonWallets (address, addrType, privateKey, bitsLen, userId) VALUES (?,?,?,?,?)"
 	res := db.QueryRow(sql, dto.Address, dto.AddrType, dto.PrivateKey, dto.BitsLen, dto.UserId)
-	fmt.Println("sql result is -> ", res)
+	// fmt.Println("sql result is -> ", &res)
 
 	return res.Err()
 }

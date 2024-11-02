@@ -19,6 +19,12 @@ tasks:
       # third flag should be a userId <-
       - GOFLAGS=-mod=mod go run main.go gwlt create test-user-id
 
+  gwt-btc-error:
+    desc: Run the get wallet command to create a btc ome-time address with an Error
+    cmds:
+      # solana is unavailable coin name
+      - GOFLAGS=-mod=mod go run main.go gwlt solana test-user-id
+
   gwt-btc:
     desc: Run the get wallet command to create a btc ome-time address
     cmds:

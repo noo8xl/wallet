@@ -18,7 +18,7 @@ var bc gobcy.API
 var apiToken = config.GetBitcoinAPIKey()
 
 // CreateWallet is in charge of creating a new root wallet
-func CreateWallet(userID string) string {
+func CreateWallet(userId *string) *models.WalletListItem {
 
 	initBlockchain("btc")
 	stamp := time.Now().UnixMilli()
@@ -37,20 +37,19 @@ func CreateWallet(userID string) string {
 			OAPAddress:      addressKeys.OAPAddress,
 			CreatedAt:       stamp,
 			UpdatedAt:       stamp,
-			UserId:          userID,
+			UserId:          *userId,
 			// PubKeys:         addressKeys.PubKeys,
 		}
 
 		// -> save wallet to main db <-
-		if err := database.InsertBtcWallet(wt); err != nil {
+		if err := database.InsertBtcWallet(&wt); err != nil {
 			log.Println("database insertion error", err)
 			os.Exit(1)
 		}
 	}
 
-	// returt btc address
-	fmt.Println("generated btc address is\n->", addressKeys)
-	return addressKeys.Address
+	fmt.Println("generated btc address is\n->", addressKeys.Address)
+	return &models.WalletListItem{CoinName: "btc", Address: addressKeys.Address}
 }
 
 func CreateOneTimeBitcoinAddress(userID string) (string, error) {

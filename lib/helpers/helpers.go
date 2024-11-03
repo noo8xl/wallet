@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"net/http"
 	"wallet-cli/lib/exceptions"
 )
 
@@ -32,5 +33,12 @@ func ValidateArgs(argsLen int, expectedValue int) {
 
 func ValidateCard(cardNum string) {
 	// https://gocardless.com/guides/posts/what-is-luhn-algorithm/
-	//
+
+}
+
+func CheckAnInternetConnection() {
+	_, err := http.Get("http://clients3.google.com/generate_204")
+	if err != nil {
+		exceptions.HandleAnException("")
+	}
 }

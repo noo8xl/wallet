@@ -3,10 +3,9 @@ package api
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
-	"os"
 	"strings"
+	"wallet-cli/lib/exceptions"
 )
 
 // ===========================================================================================//
@@ -14,10 +13,9 @@ import (
 // ===========================================================================================//
 
 // https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&ids=${coinNameForUrl}
-
 // doc is here -> https://www.coingecko.com/api/documentation <-
 
-// GetRate -> get coin rate by coinName (usd value)
+// GetRate -> get coin rate in chosen currency by coinName
 func GetRate(coinName string, currency string) float64 {
 
 	var resp map[string]map[string]float64
@@ -26,8 +24,7 @@ func GetRate(coinName string, currency string) float64 {
 
 	res, err := http.Get(uri)
 	if err != nil {
-		log.Println("GetRate http api error")
-		os.Exit(1)
+		exceptions.HandleAnException("<GetRate> got an http err: " + err.Error())
 	}
 	defer res.Body.Close()
 

@@ -3,31 +3,27 @@ package ethereum
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"math/big"
-	"os"
 	"time"
 	"wallet-cli/config"
 	"wallet-cli/database"
+	"wallet-cli/lib/exceptions"
 	"wallet-cli/lib/models"
 
 	"github.com/blockcypher/gobcy/v2"
 )
 
-var bc gobcy.API
-var apiToken string = config.GetEthereumAPIKey()
-
 // ----------------------------------------------------------------
 
 // CreateWallet is in charge of creating a new root wallet
 func CreateWallet(userId *string) *models.WalletListItem {
-	initBlockchain("eth")
+	bc := initBlockchain("eth")
 	stamp := time.Now().UnixMilli()
 
 	addressKeys, err := bc.GenAddrKeychain()
 	if err != nil {
-		panic(err)
+		exceptions.HandleAnException("<eth GenAddrKeychain> got an err: " + err.Error())
 	} else {
 		fmt.Println("wallet is ->\n", addressKeys)
 		wt := models.EthWallet{
@@ -47,8 +43,7 @@ func CreateWallet(userId *string) *models.WalletListItem {
 		fmt.Println("wt -> ", wt)
 		// -> save wallet to main db <-
 		if err := database.InsertEthWallet(&wt); err != nil {
-			log.Println("database insertion error", err)
-			os.Exit(1)
+			exceptions.HandleAnException("Database insertion got an error: " + err.Error())
 		}
 	}
 
@@ -59,7 +54,7 @@ func CreateWallet(userId *string) *models.WalletListItem {
 
 // GetEthereumAddressBalance -> get balance by address
 func GetEthBalanceByAddress(addr string) *big.Float {
-	initBlockchain("eth")
+	bc := initBlockchain("eth")
 	currentBalance := new(big.Float)
 
 	// ###################################################
@@ -68,7 +63,7 @@ func GetEthBalanceByAddress(addr string) *big.Float {
 
 	addressData, err := bc.GetAddrBal(addr, nil)
 	if err != nil {
-		fmt.Println("err is -> ", err)
+		exceptions.HandleAnException("<eth GetAddrBal> got an err: " + err.Error())
 	}
 
 	currentBalance.SetString(addressData.Balance.String())
@@ -82,17 +77,20 @@ func GetEthBalanceByAddress(addr string) *big.Float {
 // ============================ init the blockchain connection ===============================//
 // ===========================================================================================//
 
-func initBlockchain(c string) {
-	if apiToken == "" {
-		fmt.Println("init blockchain error. empty API token.")
-		return
-	} else {
-		bc = gobcy.API{}
-		bc.Token = apiToken
-		bc.Coin = c       //options: "btc","bcy","ltc","doge","eth"
-		bc.Chain = "main" //depend on coin: "main","test3","test"
+func initBlockchain(c string) *gobcy.API {
 
-		// fmt.Println("blockchain  ->", bc)
+	bc := new(gobcy.API)
+	apiToken := config.GetBitcoinAPIKey()
+
+	if apiToken == "" {
+		exceptions.HandleAnException("Init <eth> blockchain got an error. Empty API token.")
+	} else {
+
+		bc.Token = apiToken
+		bc.Coin = c // options: "btc","bcy","ltc","doge","eth"
+		// bc.Chain = "test3" // depend on coin: "main","test3","test"\
+		bc.Chain = "main"
 	}
 
+	return bc
 }

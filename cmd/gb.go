@@ -2,13 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"math/big"
-	"wallet-cli/api"
-	"wallet-cli/crypto-lib/bitcoin"
-	"wallet-cli/crypto-lib/ethereum"
-	theopennetwork "wallet-cli/crypto-lib/the-open-network"
-	"wallet-cli/lib/exceptions"
+	cryptolib "wallet-cli/crypto-lib"
 	"wallet-cli/lib/helpers"
+	"wallet-cli/lib/models"
 
 	"github.com/spf13/cobra"
 )
@@ -28,48 +24,18 @@ var gbCmd = &cobra.Command{
 		var coin string
 		var address string
 		var currencyType string
-		var balance *big.Float
-		var fiatBalance float64
-		// var response models.ResponseBalance
-		f := new(big.Float)
+		var response *models.ResponseBalance
 
 		helpers.ValidateArgs(len(args), 3)
+		helpers.CheckAnInternetConnection()
 
 		coin = args[0]
 		address = args[1]
 		currencyType = args[2]
 
-		// fmt.Println("coin name is -> ", coin)
-		// fmt.Println("coin address is -> ", address)
-		// fmt.Println("currency type is -> ", currencyType)
+		response = cryptolib.DefineBlockchainAndGetBalance(coin, address, currencyType)
+		fmt.Println(response.CoinName, response.CoinBalance, response.CurrencyType, response.FiatAmount)
 
-		switch coin {
-		case "btc":
-			balance = bitcoin.GetBitcoinAddressBalance(address)
-			fiatBalance = api.GetRate("bitcoin", currencyType)
-		case "ton":
-			balance = theopennetwork.GetTonBalanceByAddress(address)
-			fiatBalance = api.GetRate("the-open-network", currencyType)
-		case "eth":
-			balance = ethereum.GetEthBalanceByAddress(address)
-			fiatBalance = api.GetRate("ethereum", currencyType)
-		case "trx":
-			balance = theopennetwork.GetTonBalanceByAddress(address)
-			fiatBalance = api.GetRate("tron", currencyType)
-		default:
-			exceptions.HandleAnException("Unknown blockchain")
-		}
-
-		f.SetFloat64(fiatBalance)
-		formattedFiatBalance := new(big.Float).SetPrec(20).Mul(f, balance)
-
-		// response.CoinName = coin
-		// response.CoinBalance = balance
-		// response.CurrencyType = currencyType
-		// response.FiatAmount = formattedFiatBalance
-
-		// write response to the redis ?
-		fmt.Println(coin, balance, currencyType, formattedFiatBalance)
 	},
 }
 

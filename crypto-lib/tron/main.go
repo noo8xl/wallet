@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"net/http"
 	"strings"
+	"wallet-cli/lib/exceptions"
 	"wallet-cli/lib/models"
 )
 
@@ -40,8 +41,8 @@ func GetTrxBalance(addr string) *big.Float {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		fmt.Println("request err ->", err)
-		// err handler message to tg
+		exceptions.HandleAnException("<trx create wallet> got an err: " + err.Error())
+
 	}
 
 	defer res.Body.Close()

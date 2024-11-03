@@ -2,11 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"wallet-cli/crypto-lib/bitcoin"
-	"wallet-cli/crypto-lib/ethereum"
-	theopennetwork "wallet-cli/crypto-lib/the-open-network"
-	"wallet-cli/crypto-lib/tron"
-	"wallet-cli/lib/exceptions"
+	cryptolib "wallet-cli/crypto-lib"
 	"wallet-cli/lib/helpers"
 	"wallet-cli/lib/models"
 
@@ -26,30 +22,19 @@ var tsxCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var hash string
-		var tsxDto models.SendTransactionDto
+		var tsxDto = new(models.SendTransactionDto)
 
 		helpers.ValidateArgs(len(args), 4)
+		helpers.CheckAnInternetConnection()
 
 		tsxDto.CoinName = args[0]
 		tsxDto.SenderAddress = args[1]
 		tsxDto.RecipientAddress = args[2]
 		tsxDto.Amount = args[3]
 
-		switch args[0] {
-
-		case "btc":
-			hash = bitcoin.SendSingleBtcTransaction(tsxDto)
-		case "eth":
-			hash = ethereum.SendSingleEthTransaction(tsxDto)
-		case "ton":
-			hash = theopennetwork.SendSingleTonTransaction(tsxDto)
-		case "trx":
-			hash = tron.SendSingleTrxTransaction(tsxDto)
-		default:
-			exceptions.HandleAnException("Unknown blockchain")
-		}
-
+		hash = cryptolib.DefineBlockchainAndSendTsx(tsxDto)
 		fmt.Println(hash)
+
 	},
 }
 

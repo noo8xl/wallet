@@ -1,26 +1,21 @@
 package cryptolib
 
 import (
-	"fmt"
-	"os"
 	"strings"
 	"sync"
+	"wallet-cli/api"
 	"wallet-cli/config"
 	"wallet-cli/crypto-lib/bitcoin"
+	"wallet-cli/crypto-lib/ethereum"
 	theopennetwork "wallet-cli/crypto-lib/the-open-network"
 	"wallet-cli/crypto-lib/tron"
 	"wallet-cli/lib/exceptions"
 	"wallet-cli/lib/models"
 )
 
-type routineOpts struct {
-	userId   string
-	coinName string
-	result   chan<- *models.WalletListItem
-	wg       *sync.WaitGroup
-}
-
-func CreateWalletList(userId string) []*models.WalletListItem {
+// CreateWalletList -> create a pool of the workers and
+// create a wallet for the user in each available blockchain
+func CreateWalletList(userId *string) []*models.WalletListItem {
 
 	result := make(chan *models.WalletListItem, 4)
 	var walletItem *models.WalletListItem
@@ -31,13 +26,12 @@ func CreateWalletList(userId string) []*models.WalletListItem {
 	for _, item := range coinList {
 		wg.Add(1)
 		opt := &routineOpts{
-			userId:   userId,
+			userId:   *userId,
 			coinName: item,
 			result:   result,
 			wg:       &wg,
 		}
 		go worker(opt)
-
 	}
 
 	wg.Wait()
@@ -50,37 +44,81 @@ func CreateWalletList(userId string) []*models.WalletListItem {
 		}
 	}
 
-	fmt.Println("done ------")
-
-	for _, item := range walletList {
-		fmt.Println(" wallet item is -> ", item)
-	}
-
 	return walletList
 }
 
-func worker(opts *routineOpts) {
-	defer opts.wg.Done()
-	fmt.Printf("worker coinName: %s \n", opts.coinName)
-	opts.result <- DefineAndRunBlockchain(&opts.coinName, &opts.userId)
-	// opts.result <- &models.WalletListItem{}
-
-}
-
+// DefineAndRunBlockchain -> define a blockchain, init connection
+// and then generate a new address for the user
 func DefineAndRunBlockchain(coin, userId *string) *models.WalletListItem {
+
+	var walletItem *models.WalletListItem
+
 	switch strings.ToLower(*coin) {
 	case "btc":
-		return bitcoin.CreateWallet(userId)
+		walletItem = bitcoin.CreateWallet(userId)
 	case "eth":
-		// return ethereum.CreateWallet(userId)
-		return &models.WalletListItem{CoinName: "eth", Address: "will be"}
+		// walletItem = ethereum.CreateWallet(userId)
+		walletItem = &models.WalletListItem{CoinName: "eth", Address: "will be"}
 	case "trx":
-		return tron.CreateWallet(userId)
+		walletItem = tron.CreateWallet(userId)
 	case "ton":
-		return theopennetwork.CreateWallet(userId)
+		walletItem = theopennetwork.CreateWallet(userId)
 	default:
-		exceptions.HandleAnException("Unknown blockchain")
-		os.Exit(1)
+		exceptions.HandleAnException("Got an unknown blockchain in <get wallet>")
 	}
-	return nil
+
+	return walletItem
+}
+
+// DefineBlockchainAndGetBalance -> define a blockchain, init connection
+// and get a balance in crypto by address and then get a fiat balance
+// by received crypto amount in chosen currencyType
+func DefineBlockchainAndGetBalance(coin, address, currencyType string) *models.ResponseBalance {
+
+	var fiatBalance float64
+	var response = new(models.ResponseBalance)
+	response.CoinName = coin
+	response.CurrencyType = currencyType
+
+	switch coin {
+	case "btc":
+		response.CoinBalance = bitcoin.GetBitcoinAddressBalance(address)
+		fiatBalance = api.GetRate("bitcoin", currencyType)
+	case "ton":
+		response.CoinBalance = theopennetwork.GetTonBalanceByAddress(address)
+		fiatBalance = api.GetRate("the-open-network", currencyType)
+	case "eth":
+		response.CoinBalance = ethereum.GetEthBalanceByAddress(address)
+		fiatBalance = api.GetRate("ethereum", currencyType)
+	case "trx":
+		response.CoinBalance = theopennetwork.GetTonBalanceByAddress(address)
+		fiatBalance = api.GetRate("tron", currencyType)
+	default:
+		exceptions.HandleAnException("Got an unknown blockchain at the <get wallet balance>")
+	}
+
+	response.FiatAmount = getaBigFloat(fiatBalance, response.CoinBalance)
+	return response
+}
+
+// DefineBlockchainAndSendTsx -> define a blockchain, init connection
+// and send transaction to user by address and coinName
+func DefineBlockchainAndSendTsx(dto *models.SendTransactionDto) string {
+
+	var hash string
+
+	switch dto.CoinName {
+	case "btc":
+		hash = bitcoin.SendSingleBtcTransaction(dto)
+	case "eth":
+		hash = ethereum.SendSingleEthTransaction(dto)
+	case "ton":
+		hash = theopennetwork.SendSingleTonTransaction(dto)
+	case "trx":
+		hash = tron.SendSingleTrxTransaction(dto)
+	default:
+		exceptions.HandleAnException("Got an unknown blockchain at the <send transaction>")
+	}
+
+	return hash
 }

@@ -3,27 +3,27 @@ package tron
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"wallet-cli/config"
+	"wallet-cli/lib/exceptions"
 	"wallet-cli/lib/models"
 )
 
-// get api token here
-var token = config.GetTronAPIKey()
+type trxConfig struct {
+	token   string
+	network string
+}
 
 // https://developers.tron.network/reference/background#note
 // -> the doc is here <-
-
-var netwotk = "https://api.trongrid.io" // mainnet
-// var netwotk = "https://api.shasta.trongrid.io" // testnet
-
+//
 // ValidateTrxAddress -> validate address in tron network
 func ValidateTrxAddress(addr string) bool {
 
-	fmt.Println("token is => ", token)
+	cnf := initTrxConfig()
+	// fmt.Println("token is => ", cnf.token)
 
 	// testNet + path + payload
 	var response struct {
@@ -32,7 +32,7 @@ func ValidateTrxAddress(addr string) bool {
 	}
 	path := "/wallet/validateaddress"
 	payload := strings.NewReader(strings.Join([]string{"{\"address\":", "\"", addr, "\",", "\"visible\":true}"}, ""))
-	url := strings.Join([]string{netwotk, path}, "")
+	url := strings.Join([]string{cnf.network, path}, "")
 
 	// fmt.Println("payload ->", payload)
 	// fmt.Println(" url -> ", url)
@@ -44,8 +44,8 @@ func ValidateTrxAddress(addr string) bool {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		fmt.Println("request err ->", err)
-		// err handler message to tg
+		exceptions.HandleAnException("<trx validate address> got an http err: " + err.Error())
+
 	}
 	defer res.Body.Close()
 
@@ -56,7 +56,7 @@ func ValidateTrxAddress(addr string) bool {
 	return response.Result
 }
 
-func SendSingleTrxTransaction(dto models.SendTransactionDto) string {
+func SendSingleTrxTransaction(dto *models.SendTransactionDto) string {
 
 	// save a tsx details to db
 	return "hash"
@@ -65,3 +65,12 @@ func SendSingleTrxTransaction(dto models.SendTransactionDto) string {
 // ===========================================================================================//
 // ============================== function for internal usage ================================//
 // ===========================================================================================//
+
+func initTrxConfig() *trxConfig {
+	var conf = new(trxConfig)
+	conf.token = config.GetTronAPIKey()
+	conf.network = "https://api.trongrid.io" // mainnet
+	// conf.netwotk = "https://api.shasta.trongrid.io" // testnet
+	//
+	return conf
+}

@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
 	cryptolib "wallet-cli/crypto-lib"
 	"wallet-cli/lib/helpers"
 	"wallet-cli/lib/models"
@@ -27,38 +29,36 @@ var gwltCmd = &cobra.Command{
 		var userId string
 
 		var walletItem *models.WalletListItem
-		var response []*models.WalletListItem
+		var walletList []*models.WalletListItem
 
 		helpers.ValidateArgs(len(args), 2)
+		helpers.CheckAnInternetConnection()
+
 		coin = args[0]
 		userId = args[1]
 
 		if coin == "create" {
-			response = cryptolib.CreateWalletList(userId)
-			fmt.Println("response is: ", response)
-		} else {
-			walletItem = cryptolib.DefineAndRunBlockchain(&coin, &userId)
+			walletList = cryptolib.CreateWalletList(&userId)
+			var str string
+
+			for _, item := range walletList {
+				vals := reflect.ValueOf(*item)
+				for i := 0; i < vals.NumField()/2; i++ {
+					tmp := strings.Join([]string{str, vals.Field(i).String(), vals.Field(i + 1).String()}, " ")
+					str = strings.Join([]string{str, tmp}, "\n")
+				}
+			}
+
+			fmt.Println(str)
+			return
 		}
 
-		if coin != "create" {
-			fmt.Println(walletItem.Address)
-		} else {
-			fmt.Println("done main_")
-		}
+		walletItem = cryptolib.DefineAndRunBlockchain(&coin, &userId)
+		fmt.Println(walletItem.Address)
 
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(gwltCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// gwltCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// gwltCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

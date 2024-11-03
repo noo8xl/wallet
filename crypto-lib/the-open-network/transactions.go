@@ -7,7 +7,7 @@ import (
 	"github.com/xssnick/tonutils-go/ton"
 )
 
-func SendSingleTonTransaction(dto models.SendTransactionDto) string {
+func SendSingleTonTransaction(dto *models.SendTransactionDto) string {
 	// manage smth and send trx ->
 	tonAPI := initTonAPIConnection()
 
@@ -18,7 +18,7 @@ func SendSingleTonTransaction(dto models.SendTransactionDto) string {
 // ============================== function for internal usage ================================//
 // ===========================================================================================//
 
-func signAndPushTransaction(dto models.SendTransactionDto, api *ton.APIClient) string {
+func signAndPushTransaction(dto *models.SendTransactionDto, api *ton.APIClient) string {
 	fmt.Println("dto ->\n", dto)
 	fmt.Println("api -> ", api)
 	// privateKey := database.SelectTonPrivate(dto.SenderAddress)

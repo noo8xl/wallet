@@ -3,29 +3,25 @@ package bitcoin
 
 import (
 	"fmt"
-	"log"
 	"math/big"
-	"os"
 	"time"
 	"wallet-cli/config"
 	"wallet-cli/database"
+	"wallet-cli/lib/exceptions"
 	"wallet-cli/lib/models"
 
 	"github.com/blockcypher/gobcy/v2"
 )
 
-var bc gobcy.API
-var apiToken = config.GetBitcoinAPIKey()
-
 // CreateWallet is in charge of creating a new root wallet
 func CreateWallet(userId *string) *models.WalletListItem {
 
-	initBlockchain("btc")
+	bc := initBlockchain("btc")
 	stamp := time.Now().UnixMilli()
 
 	addressKeys, err := bc.GenAddrKeychain()
 	if err != nil {
-		panic(err)
+		exceptions.HandleAnException("<btc GenAddrKeychain> got an err: " + err.Error())
 	} else {
 		wt := models.BtcWallet{
 			Address:         addressKeys.Address,
@@ -43,8 +39,7 @@ func CreateWallet(userId *string) *models.WalletListItem {
 
 		// -> save wallet to main db <-
 		if err := database.InsertBtcWallet(&wt); err != nil {
-			log.Println("database insertion error", err)
-			os.Exit(1)
+			exceptions.HandleAnException("<Database insertion> got an error: " + err.Error())
 		}
 	}
 
@@ -53,14 +48,11 @@ func CreateWallet(userId *string) *models.WalletListItem {
 }
 
 func CreateOneTimeBitcoinAddress(userID string) (string, error) {
-	var err error
-	var addressKeys gobcy.AddrKeychain
+	bc := initBlockchain("btc")
 
-	initBlockchain("btc")
-
-	addressKeys, err = bc.GenAddrKeychain()
+	addressKeys, err := bc.GenAddrKeychain()
 	if err != nil {
-		return "", err
+		exceptions.HandleAnException("<btc GenAddrKeychain> got an err: " + err.Error())
 	}
 
 	return addressKeys.Address, nil
@@ -80,14 +72,11 @@ func GetBitcoinAddressBalance(address string) *big.Float {
 
 	const satoshiPerByte float64 = 0.00000001
 	var currentBalance = big.NewFloat(0)
-	var addressData gobcy.Addr
-	var err error
-	initBlockchain("btc")
+	bc := initBlockchain("btc")
 
-	addressData, err = bc.GetAddrBal(address, nil)
+	addressData, err := bc.GetAddrBal(address, nil)
 	if err != nil {
-		fmt.Println("log from err -> ", err)
-		return currentBalance
+		exceptions.HandleAnException("<btc GetAddrBal> got an error: " + err.Error())
 	}
 
 	// fmt.Println("addressData -> ")
@@ -106,17 +95,20 @@ func GetBitcoinAddressBalance(address string) *big.Float {
 // ============================ init the blockchain connection ===============================//
 // ===========================================================================================//
 
-func initBlockchain(c string) {
-	if apiToken == "" {
-		fmt.Println("init blockchain error. empty API token.")
-		return
-	} else {
-		bc = gobcy.API{}
-		bc.Token = apiToken
-		bc.Coin = c // options: "btc","bcy","ltc","doge","eth"
-		// bc.Chain = "test3" // depend on coin: "main","test3","test"\
-		bc.Chain = "test3"
+func initBlockchain(c string) *gobcy.API {
 
-		fmt.Println("blockchain is->", bc.Chain)
+	bc := new(gobcy.API)
+	apiToken := config.GetBitcoinAPIKey()
+
+	if apiToken == "" {
+		exceptions.HandleAnException("Init <btc> blockchain got an error. Empty API token.")
+	} else {
+
+		bc.Token = apiToken
+		bc.Coin = c        // options: "btc","bcy","ltc","doge","eth"
+		bc.Chain = "test3" // depend on coin: "main","test3","test"\
+		// bc.Chain = "main"
 	}
+
+	return bc
 }

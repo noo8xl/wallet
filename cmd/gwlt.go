@@ -44,8 +44,8 @@ var gwltCmd = &cobra.Command{
 			for _, item := range walletList {
 				vals := reflect.ValueOf(*item)
 				for i := 0; i < vals.NumField()/2; i++ {
-					tmp := strings.Join([]string{str, vals.Field(i).String(), vals.Field(i + 1).String()}, " ")
-					str = strings.Join([]string{str, tmp}, "\n")
+					tmp := strings.Join([]string{vals.Field(i).String(), vals.Field(i + 1).String()}, " ")
+					str = strings.Join([]string{str, tmp}, "/")
 				}
 			}
 

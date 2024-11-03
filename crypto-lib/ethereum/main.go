@@ -40,15 +40,12 @@ func CreateWallet(userId *string) *models.WalletListItem {
 			// PubKeys:         addressKeys.PubKeys,
 		}
 
-		fmt.Println("wt -> ", wt)
 		// -> save wallet to main db <-
 		if err := database.InsertEthWallet(&wt); err != nil {
 			exceptions.HandleAnException("Database insertion got an error: " + err.Error())
 		}
 	}
 
-	// returt eth address
-	fmt.Println("generated eth address is\n->", addressKeys)
 	return &models.WalletListItem{CoinName: "eth", Address: addressKeys.Address}
 }
 

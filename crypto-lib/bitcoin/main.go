@@ -2,7 +2,6 @@
 package bitcoin
 
 import (
-	"fmt"
 	"math/big"
 	"time"
 	"wallet-cli/config"
@@ -43,7 +42,6 @@ func CreateWallet(userId *string) *models.WalletListItem {
 		}
 	}
 
-	fmt.Println("generated btc address is\n->", addressKeys.Address)
 	return &models.WalletListItem{CoinName: "btc", Address: addressKeys.Address}
 }
 

@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
 	"wallet-cli/config"
@@ -26,9 +25,9 @@ func dbConnect() *sql.DB {
 	pingErr := db.Ping()
 	if pingErr != nil {
 		log.Fatal(pingErr)
-	} else {
-		fmt.Println("Connected!")
 	}
+
+	// fmt.Println("Connected!")
 
 	return db
 }

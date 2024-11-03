@@ -44,7 +44,6 @@ func CreateWallet(userId *string) *models.WalletListItem {
 		}
 	}
 
-	fmt.Println("generated ton address is\n->", w.WalletAddress().String())
 	return &models.WalletListItem{CoinName: "ton", Address: w.WalletAddress().String()}
 }
 

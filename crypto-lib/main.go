@@ -56,13 +56,16 @@ func DefineAndRunBlockchain(coin, userId *string) *models.WalletListItem {
 	switch strings.ToLower(*coin) {
 	case "btc":
 		walletItem = bitcoin.CreateWallet(userId)
+		// walletItem = &models.WalletListItem{CoinName: "btc", Address: "addressBTCHere123123_test"}
 	case "eth":
-		// walletItem = ethereum.CreateWallet(userId)
-		walletItem = &models.WalletListItem{CoinName: "eth", Address: "will be"}
+		walletItem = ethereum.CreateWallet(userId)
+		// walletItem = &models.WalletListItem{CoinName: "eth", Address: "addressETHHere568568_test"}
 	case "trx":
 		walletItem = tron.CreateWallet(userId)
+		// walletItem = &models.WalletListItem{CoinName: "trx", Address: "addressTRXHere1249728_test"}
 	case "ton":
 		walletItem = theopennetwork.CreateWallet(userId)
+		// walletItem = &models.WalletListItem{CoinName: "ton", Address: "addressTONHere56-0sj8_test"}
 	default:
 		exceptions.HandleAnException("Got an unknown blockchain in <get wallet>")
 	}

@@ -4,12 +4,12 @@ tasks:
   build-linux:
     desc: Build the app for the Linux
     cmds:
-      - GOFLAGS=-mod=mod GOOS=linux GOARCH=amd64 go build -o bin/wallet-cli main.go | cp bin/wallet-cli ../crypto_app/cryptoAutopaymentApi
+      - rm -rf bin | GOFLAGS=-mod=mod GOOS=linux GOARCH=amd64 go build -o bin/wallet-cli main.go && cp bin/wallet-cli ../crypto_app/clientWalletAPI
 
   build-mac:
     desc: Build the app for the MacOS
     cmds:
-      - GOFLAGS=-mod=mod GOOS=darwin GOARCH=amd64 go build -o bin/wallet-cli main.go | cp bin/wallet-cli ../crypto_app/cryptoAutopaymentApi
+      - GOFLAGS=-mod=mod GOOS=darwin GOARCH=amd64 go build -o bin/wallet-cli main.go | cp bin/wallet-cli ../crypto_app/clientWalletAPI
 
   # ---------------------------------- get wallet commands ------------------------------------------------
 

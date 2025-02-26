@@ -6,22 +6,33 @@ import (
 	"math"
 	"math/big"
 	"time"
-	"wallet-cli/config"
-	"wallet-cli/database"
-	"wallet-cli/lib/exceptions"
-	"wallet-cli/lib/models"
+	"wallet/config"
+	"wallet/database"
+	"wallet/lib/exceptions"
+	"wallet/lib/models"
+
+	pb "wallet/api"
 
 	"github.com/blockcypher/gobcy/v2"
 )
 
+type EthereumService struct {
+	bc *gobcy.API
+	db database.DatabaseService
+}
+
+func init() {
+	initBlockchain()
+}
+
 // ----------------------------------------------------------------
 
 // CreateWallet is in charge of creating a new root wallet
-func CreateWallet(userId *string) *models.WalletListItem {
-	bc := initBlockchain("eth")
+func (s *EthereumService) CreateWallet(userId int64) *pb.WalletItem {
+
 	stamp := time.Now().UnixMilli()
 
-	addressKeys, err := bc.GenAddrKeychain()
+	addressKeys, err := s.bc.GenAddrKeychain()
 	if err != nil {
 		exceptions.HandleAnException("<eth GenAddrKeychain> got an err: " + err.Error())
 	} else {
@@ -36,29 +47,28 @@ func CreateWallet(userId *string) *models.WalletListItem {
 			OAPAddress:      addressKeys.OAPAddress,
 			CreatedAt:       stamp,
 			UpdatedAt:       stamp,
-			UserId:          *userId,
+			CustomerId:      userId,
 			// PubKeys:         addressKeys.PubKeys,
 		}
 
 		// -> save wallet to main db <-
-		if err := database.InsertEthWallet(&wt); err != nil {
+		if err := s.db.InsertEthWallet(&wt); err != nil {
 			exceptions.HandleAnException("Database insertion got an error: " + err.Error())
 		}
 	}
 
-	return &models.WalletListItem{CoinName: "eth", Address: addressKeys.Address}
+	return &pb.WalletItem{CoinName: "eth", Address: addressKeys.Address, Balance: 0.0}
 }
 
 // GetEthereumAddressBalance -> get balance by address
-func GetEthBalanceByAddress(addr string) *big.Float {
-	bc := initBlockchain("eth")
+func (s *EthereumService) GetEthBalanceByAddress(addr string) *big.Float {
 	currentBalance := new(big.Float)
 
 	// ###################################################
 	// ######## DOESN"T WORK IN THE TEST-NET! ############
 	// ###################################################
 
-	addressData, err := bc.GetAddrBal(addr, nil)
+	addressData, err := s.bc.GetAddrBal(addr, nil)
 	if err != nil {
 		exceptions.HandleAnException("<eth GetAddrBal> got an err: " + err.Error())
 	}
@@ -74,7 +84,7 @@ func GetEthBalanceByAddress(addr string) *big.Float {
 // ============================ init the blockchain connection ===============================//
 // ===========================================================================================//
 
-func initBlockchain(c string) *gobcy.API {
+func initBlockchain() *EthereumService {
 
 	bc := new(gobcy.API)
 	apiToken := config.GetBitcoinAPIKey()
@@ -84,10 +94,10 @@ func initBlockchain(c string) *gobcy.API {
 	} else {
 
 		bc.Token = apiToken
-		bc.Coin = c // options: "btc","bcy","ltc","doge","eth"
+		bc.Coin = "eth" // options: "btc","bcy","ltc","doge","eth"
 		// bc.Chain = "test3" // depend on coin: "main","test3","test"\
 		bc.Chain = "main"
 	}
 
-	return bc
+	return &EthereumService{bc: bc}
 }

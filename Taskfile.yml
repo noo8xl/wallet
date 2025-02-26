@@ -1,15 +1,22 @@
 version: "3"
 
 tasks:
+  gen-grpc: 
+    desc: Generate the grpc client and server interfaces
+    cmds: 
+      - protoc --go_out=. --go_opt=paths=source_relative \ --go-grpc_out=. --go-grpc_opt=paths=source_relative \ api/wallet.proto
+
+
+tasks:
   build-linux:
     desc: Build the app for the Linux
     cmds:
-      - rm -rf bin | GOFLAGS=-mod=mod GOOS=linux GOARCH=amd64 go build -o bin/wallet-cli main.go && cp bin/wallet-cli ../crypto_app/clientWalletAPI
+      - rm -rf bin | GOFLAGS=-mod=mod GOOS=linux GOARCH=amd64 go build -o bin/wallet main.go && cp bin/wallet ../crypto_app/clientWalletAPI
 
   build-mac:
     desc: Build the app for the MacOS
     cmds:
-      - GOFLAGS=-mod=mod GOOS=darwin GOARCH=amd64 go build -o bin/wallet-cli main.go | cp bin/wallet-cli ../crypto_app/clientWalletAPI
+      - GOFLAGS=-mod=mod GOOS=darwin GOARCH=amd64 go build -o bin/wallet main.go | cp bin/wallet ../crypto_app/clientWalletAPI
 
   # ---------------------------------- get wallet commands ------------------------------------------------
 

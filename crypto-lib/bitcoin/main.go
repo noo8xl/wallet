@@ -4,21 +4,30 @@ package bitcoin
 import (
 	"math/big"
 	"time"
-	"wallet-cli/config"
-	"wallet-cli/database"
-	"wallet-cli/lib/exceptions"
-	"wallet-cli/lib/models"
+	"wallet/config"
+	"wallet/database"
+	"wallet/lib/exceptions"
+	"wallet/lib/models"
+
+	pb "wallet/api"
 
 	"github.com/blockcypher/gobcy/v2"
 )
 
+type BitcoinService struct {
+	bc *gobcy.API
+	db database.DatabaseService
+}
+
+func init() {
+	initBlockchain()
+}
+
 // CreateWallet is in charge of creating a new root wallet
-func CreateWallet(userId *string) *models.WalletListItem {
+func (s *BitcoinService) CreateWallet(userId int64) *pb.WalletItem {
 
-	bc := initBlockchain("btc")
 	stamp := time.Now().UnixMilli()
-
-	addressKeys, err := bc.GenAddrKeychain()
+	addressKeys, err := s.bc.GenAddrKeychain()
 	if err != nil {
 		exceptions.HandleAnException("<btc GenAddrKeychain> got an err: " + err.Error())
 	} else {
@@ -32,23 +41,22 @@ func CreateWallet(userId *string) *models.WalletListItem {
 			OAPAddress:      addressKeys.OAPAddress,
 			CreatedAt:       stamp,
 			UpdatedAt:       stamp,
-			UserId:          *userId,
+			CustomerId:      userId,
 			// PubKeys:         addressKeys.PubKeys,
 		}
 
 		// -> save wallet to main db <-
-		if err := database.InsertBtcWallet(&wt); err != nil {
+		if err := s.db.InsertBtcWallet(&wt); err != nil {
 			exceptions.HandleAnException("<Database insertion> got an error: " + err.Error())
 		}
 	}
 
-	return &models.WalletListItem{CoinName: "btc", Address: addressKeys.Address}
+	return &pb.WalletItem{CoinName: "btc", Address: addressKeys.Address, Balance: 0.0}
 }
 
-func CreateOneTimeBitcoinAddress(userID string) (string, error) {
-	bc := initBlockchain("btc")
+func (s *BitcoinService) CreateOneTimeBitcoinAddress(userID string) (string, error) {
 
-	addressKeys, err := bc.GenAddrKeychain()
+	addressKeys, err := s.bc.GenAddrKeychain()
 	if err != nil {
 		exceptions.HandleAnException("<btc GenAddrKeychain> got an err: " + err.Error())
 	}
@@ -57,7 +65,7 @@ func CreateOneTimeBitcoinAddress(userID string) (string, error) {
 }
 
 // GetBitcoinAddressBalance -> get balance by address
-func GetBitcoinAddressBalance(address string) *big.Float {
+func (s *BitcoinService) GetBitcoinAddressBalance(address string) *big.Float {
 
 	// log.Println("adr -> ", address)
 	// ###################################################
@@ -70,9 +78,8 @@ func GetBitcoinAddressBalance(address string) *big.Float {
 
 	const satoshiPerByte float64 = 0.00000001
 	var currentBalance = big.NewFloat(0)
-	bc := initBlockchain("btc")
 
-	addressData, err := bc.GetAddrBal(address, nil)
+	addressData, err := s.bc.GetAddrBal(address, nil)
 	if err != nil {
 		exceptions.HandleAnException("<btc GetAddrBal> got an error: " + err.Error())
 	}
@@ -93,7 +100,7 @@ func GetBitcoinAddressBalance(address string) *big.Float {
 // ============================ init the blockchain connection ===============================//
 // ===========================================================================================//
 
-func initBlockchain(c string) *gobcy.API {
+func initBlockchain() *BitcoinService {
 
 	bc := new(gobcy.API)
 	apiToken := config.GetBitcoinAPIKey()
@@ -103,10 +110,10 @@ func initBlockchain(c string) *gobcy.API {
 	} else {
 
 		bc.Token = apiToken
-		bc.Coin = c        // options: "btc","bcy","ltc","doge","eth"
+		bc.Coin = "btc"    // options: "btc","bcy","ltc","doge","eth"
 		bc.Chain = "test3" // depend on coin: "main","test3","test"\
 		// bc.Chain = "main"
 	}
 
-	return bc
+	return &BitcoinService{bc: bc}
 }

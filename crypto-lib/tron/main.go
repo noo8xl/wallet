@@ -6,16 +6,32 @@ import (
 	"math/big"
 	"net/http"
 	"strings"
-	"wallet-cli/lib/exceptions"
-	"wallet-cli/lib/models"
+	"wallet/config"
+	"wallet/database"
+	"wallet/lib/exceptions"
+	"wallet/lib/models"
+
+	pb "wallet/api"
 )
 
-func CreateWallet(userId *string) *models.WalletListItem {
-	return &models.WalletListItem{CoinName: "trx", Address: "address_will_be_here"}
+type TronService struct {
+	token   string
+	network string
+	db      database.DatabaseService
+}
+
+func init() {
+	initTrxConfig()
+}
+
+func (s *TronService) CreateWallet(userId int64) *pb.WalletItem {
+	// TODO : impl db
+	s.db.InsertTonWallet(&models.TonWallet{})
+	return &pb.WalletItem{CoinName: "trx", Address: "address_will_be_here", Balance: 0.0}
 }
 
 // GetTrxBalance -> get balance by wallet address
-func GetTrxBalance(addr string) *big.Float {
+func (s *TronService) GetTrxBalance(addr string) *big.Float {
 
 	var currentBalance *big.Float
 	var reqString string
@@ -53,4 +69,17 @@ func GetTrxBalance(addr string) *big.Float {
 
 	return currentBalance
 
+}
+
+// ===========================================================================================//
+// ============================== function for internal usage ================================//
+// ===========================================================================================//
+
+func initTrxConfig() *TronService {
+	var conf = new(TronService)
+	conf.token = config.GetTronAPIKey()
+	conf.network = "https://api.trongrid.io" // mainnet
+	// conf.netwotk = "https://api.shasta.trongrid.io" // testnet
+	//
+	return &TronService{token: conf.token, network: conf.network}
 }

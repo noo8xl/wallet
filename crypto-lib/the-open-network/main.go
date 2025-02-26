@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"math/big"
 	"time"
-	"wallet-cli/database"
-	"wallet-cli/lib/exceptions"
-	"wallet-cli/lib/helpers"
-	"wallet-cli/lib/models"
+	"wallet/database"
+	"wallet/lib/exceptions"
+	"wallet/lib/helpers"
+	"wallet/lib/models"
+
+	pb "wallet/api"
 
 	"github.com/xssnick/tonutils-go/address"
 	"github.com/xssnick/tonutils-go/liteclient"
@@ -20,12 +22,19 @@ import (
 // https://github.com/xssnick/tonutils-go#Wallet
 // -> the doc is here <-
 
-func CreateWallet(userId *string) *models.WalletListItem {
+type TONService struct {
+	client *ton.APIClient
+	db     database.DatabaseService
+}
 
-	tonAPI := initTonAPIConnection()
+func init() {
+	initTonAPIConnection()
+}
+
+func (s *TONService) CreateWallet(userId int64) *pb.WalletItem {
 
 	words := wallet.NewSeed()
-	w, err := wallet.FromSeed(tonAPI, words, wallet.V4R2)
+	w, err := wallet.FromSeed(s.client, words, wallet.V4R2)
 	if err != nil {
 		exceptions.HandleAnException("<ton GenAddrKeychain> got an err: " + err.Error())
 	} else {
@@ -36,35 +45,33 @@ func CreateWallet(userId *string) *models.WalletListItem {
 			BitsLen:    w.Address().BitsLen(),
 			CreatedAt:  time.Now().UnixMilli(),
 			UpdatedAt:  time.Now().UnixMilli(),
-			UserId:     *userId,
+			CustomerId: userId,
 		}
 		// -> save wallet were to db!
-		if err := database.InsertTonWallet(&wt); err != nil {
+		if err := s.db.InsertTonWallet(&wt); err != nil {
 			exceptions.HandleAnException("<Database insertion> got an error: " + err.Error())
 		}
 	}
 
-	return &models.WalletListItem{CoinName: "ton", Address: w.WalletAddress().String()}
+	return &pb.WalletItem{CoinName: "ton", Address: w.WalletAddress().String(), Balance: 0.0}
 }
 
 // GetTonBalanceByAddress -> get balance value by coin address
-func GetTonBalanceByAddress(a string) *big.Float {
+func (s *TONService) GetTonBalanceByAddress(a string) *big.Float {
 
 	curBalance := new(big.Float)
 	ctx := context.Background()
-
-	tonAPI := initTonAPIConnection()
 	addr := address.MustParseAddr(a)
 
 	// we need fresh block info to run get methods
-	blcn, err := tonAPI.CurrentMasterchainInfo(ctx)
+	blcn, err := s.client.CurrentMasterchainInfo(ctx)
 	if err != nil {
 		exceptions.HandleAnException("<ton CurrentMasterchainInfo> got an err: " + err.Error())
 	}
 
 	// we use WaitForBlock to make sure block is ready,
 	// it is optional but escapes us from liteserver block not ready errors
-	acc, err := tonAPI.WaitForBlock(blcn.SeqNo).GetAccount(ctx, blcn, addr)
+	acc, err := s.client.WaitForBlock(blcn.SeqNo).GetAccount(ctx, blcn, addr)
 	if err != nil {
 		exceptions.HandleAnException("<ton GetAccount> got an err: " + err.Error())
 	}
@@ -90,7 +97,7 @@ func GetTonBalanceByAddress(a string) *big.Float {
 // ===========================================================================================//
 
 // InitTonAPIConnection -> create ton blockchain connection
-func initTonAPIConnection() *ton.APIClient {
+func initTonAPIConnection() *TONService {
 
 	// configUrl := "https://ton.org/global.config.json" // -> Mainnet
 	configUrl := "https://ton-blockchain.github.io/testnet-global.config.json" // -> Testnet
@@ -101,6 +108,6 @@ func initTonAPIConnection() *ton.APIClient {
 	if err != nil {
 		exceptions.HandleAnException("Init <ton> blockchain got an error: " + err.Error())
 	}
-	return ton.NewAPIClient(client)
+	return &TONService{client: ton.NewAPIClient(client)}
 	// api = api.WithRetry() // if you want automatic retries with failover to another node
 }

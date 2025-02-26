@@ -3,23 +3,21 @@ package ethereum
 import (
 	"fmt"
 	"math/big"
-	"wallet-cli/database"
-	"wallet-cli/lib/exceptions"
-	"wallet-cli/lib/models"
+	"wallet/lib/exceptions"
+
+	pb "wallet/api"
 
 	"github.com/blockcypher/gobcy/v2"
 )
 
-func SendSingleEthTransaction(dto *models.SendTransactionDto) string {
+func (s *EthereumService) SendSingleEthTransaction(dto *pb.SendSingleTsxRequest) string {
 
 	var skeleton gobcy.TXSkel
-	privateKey := database.SelectBtcPrivate(dto.SenderAddress)
+	privateKey := s.db.SelectBtcPrivate(dto.Payee.PeyeeAddress)
 	var err error
 
 	amount := new(big.Int)
-	amount.SetString(dto.Amount, 10)
-
-	bc := initBlockchain("btc")
+	amount.SetString(dto.Beneficiar.Amount, 10)
 
 	// use faucet to fund first
 	// _, err = bc.Faucet(addressFrom, 3e5)
@@ -28,7 +26,7 @@ func SendSingleEthTransaction(dto *models.SendTransactionDto) string {
 	// }
 
 	//Post New TXSkeleton
-	skeleton, err = bc.NewTX(gobcy.TempNewTX(dto.SenderAddress, dto.RecipientAddress, *amount), false)
+	skeleton, err = s.bc.NewTX(gobcy.TempNewTX(dto.Payee.PeyeeAddress, dto.Beneficiar.BeneficiarAddress, *amount), false)
 	if err != nil {
 		exceptions.HandleAnException("<eth create transactions> got an err: " + err.Error())
 	}
@@ -40,26 +38,14 @@ func SendSingleEthTransaction(dto *models.SendTransactionDto) string {
 	}
 
 	// Send TXSkeleton
-	skeleton, err = bc.SendTX(skeleton)
+	skeleton, err = s.bc.SendTX(skeleton)
 	if err != nil {
 		exceptions.HandleAnException("<eth send transactions> got an err: " + err.Error())
 	}
 	fmt.Printf("skeleton is => %+v\n", skeleton)
 
 	// save a tsx details to db
-	return pushTransaction(skeleton.Trans.Hash, bc)
-}
-
-// ===========================================================================================//
-// ============================== function for internal usage ================================//
-// ===========================================================================================//
-
-// pushBtcTransaction -> push it to the pool in BC
-func pushTransaction(hash string, bc *gobcy.API) string {
-	// bc should be changed to BlockCypher Testnet
-	// initBlockchain("btc")
-
-	skel, err := bc.PushTX(hash)
+	skel, err := s.bc.PushTX(skeleton.Trans.Hash)
 	if err != nil {
 		exceptions.HandleAnException("<eth push transactions> got an err: " + err.Error())
 	}

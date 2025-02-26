@@ -6,24 +6,16 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"wallet-cli/config"
-	"wallet-cli/lib/exceptions"
-	"wallet-cli/lib/models"
-)
+	"wallet/lib/exceptions"
 
-type trxConfig struct {
-	token   string
-	network string
-}
+	pb "wallet/api"
+)
 
 // https://developers.tron.network/reference/background#note
 // -> the doc is here <-
 //
 // ValidateTrxAddress -> validate address in tron network
-func ValidateTrxAddress(addr string) bool {
-
-	cnf := initTrxConfig()
-	// fmt.Println("token is => ", cnf.token)
+func (s *TronService) ValidateTrxAddress(addr string) bool {
 
 	// testNet + path + payload
 	var response struct {
@@ -32,7 +24,7 @@ func ValidateTrxAddress(addr string) bool {
 	}
 	path := "/wallet/validateaddress"
 	payload := strings.NewReader(strings.Join([]string{"{\"address\":", "\"", addr, "\",", "\"visible\":true}"}, ""))
-	url := strings.Join([]string{cnf.network, path}, "")
+	url := strings.Join([]string{s.network, path}, "")
 
 	// fmt.Println("payload ->", payload)
 	// fmt.Println(" url -> ", url)
@@ -56,21 +48,8 @@ func ValidateTrxAddress(addr string) bool {
 	return response.Result
 }
 
-func SendSingleTrxTransaction(dto *models.SendTransactionDto) string {
+func (s *TronService) SendSingleTrxTransaction(dto *pb.SendSingleTsxRequest) string {
 
 	// save a tsx details to db
 	return "hash"
-}
-
-// ===========================================================================================//
-// ============================== function for internal usage ================================//
-// ===========================================================================================//
-
-func initTrxConfig() *trxConfig {
-	var conf = new(trxConfig)
-	conf.token = config.GetTronAPIKey()
-	conf.network = "https://api.trongrid.io" // mainnet
-	// conf.netwotk = "https://api.shasta.trongrid.io" // testnet
-	//
-	return conf
 }

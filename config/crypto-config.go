@@ -5,8 +5,7 @@ package config
 // // ===========================================================================================//
 
 // // GetBitcoinAPIKey -> get an BTC api key
-// func GetBitcoinAPIKey() string {
-// 	return getConfigVar("BTC_API_KEY")
+// func GetBitcoinAPIKey() stringetConfigVar("BTC_API_KEY")
 // }
 
 // // GetEthereumAPIKey -> get an ETH api key
@@ -22,4 +21,5 @@ package config
 // // GetTheOpenNetworkAPIKey -> get an TON api key
 // func GetTheOpenNetworkAPIKey() string {
 // 	return ""
-// }
+// }g {
+// 	return

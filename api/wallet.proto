@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+option go_package = "github.com/noo8xl/wallet/api";
+
+package api;
+
+message WalletItem {
+  int64 id = 1;
+  string coin_name = 2;
+  string address = 3;
+  double balance = 4;
+}
+
+message CoinBalance {
+  string coin_name = 1;
+  string balance = 2;
+}
+
+message CustomerBalance {
+  string coin_balance = 1;
+	string fiat_balance = 2;
+  string currency_name = 3;
+}
+
+message TransactionHash {
+  string tsx_hash = 1;
+}
+
+message WalletList {
+  repeated WalletItem wallet = 1;
+}
+
+service WalletService {
+  rpc CreateWallet(CreateWalletRequest) returns (WalletList) {};
+  rpc CreateAddress(CreateAddressRequest) returns (WalletItem) {};
+
+  rpc GetCoinBalance(GetCoinBalanceRequest) returns (CoinBalance) {};
+  rpc GetCustomerBalance(GetCustomerBalanceRequest) returns (CustomerBalance) {};
+
+  rpc SendSingleTsx(SendSingleTsxRequest) returns (TransactionHash) {};
+  rpc SendMultiplyTsx(SendMultiplyTsxRequest) returns (TransactionHash) {};
+}
+
+
+// CreateWalletRequest -> create wallet in each available blockchain (a list of)
+message CreateWalletRequest {
+  int64 customer_id = 1;
+}
+
+// CreateAddressRequest -> generate one-time addres in certain blockchain
+message CreateAddressRequest {
+  int64 customer_id = 1;
+  string coin_name = 2;
+}
+
+// GetCustomerBalanceRequest -> get balance data by customer id
+message GetCustomerBalanceRequest {
+  int64 customer_id = 1;
+  string currency_name = 2;
+}
+
+// GetCoinBalanceRequest -> get balance data by address and coin name
+message GetCoinBalanceRequest {
+  string coin_name = 1;
+  string address = 2;
+}
+
+// SendSingleTsxRequest -> send transaction direct to the certain users
+message SendSingleTsxRequest {
+  string coin_name = 1;
+  PeyeeData payee = 2;
+  BeneficiarData beneficiar = 3;
+}
+
+// SendMultiplyTsxRequest -> send transaction to the multiply users
+message SendMultiplyTsxRequest {
+  string coin_name = 1;
+  PeyeeData payee = 2;
+  repeated BeneficiarData beneficiar_list = 3;
+}
+
+message BeneficiarData {
+  string beneficiar_address = 1;
+  int64 beneficiar_id = 2;
+  string amount = 3;
+}
+
+message PeyeeData {
+  string peyee_address = 1;
+  int64 peyee_id = 2;
+  string amount = 3;
+}

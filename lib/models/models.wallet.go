@@ -20,9 +20,9 @@ type BtcWallet struct {
 	OriginalAddress string `json:"originalAddress" bson:"originalAddress"`
 	OAPAddress      string `json:"OAPAddress" bson:"OAPAddress"`
 
-	CreatedAt int64  `json:"createdAt" bson:"createdAt"` // stamp in ms as value
-	UpdatedAt int64  `json:"updatedAt" bson:"updatedAt"` // stamp in ms as value
-	UserId    string `json:"userId" bson:"userId"`       // receive via request
+	CreatedAt  int64 `json:"createdAt" bson:"createdAt"`   // stamp in ms as value
+	UpdatedAt  int64 `json:"updatedAt" bson:"updatedAt"`   // stamp in ms as value
+	CustomerId int64 `json:"customerId" bson:"customerId"` // receive via request
 	// PubKeys         []string `json:"pubKeys" bson:"pubKeys"`
 }
 
@@ -36,9 +36,9 @@ type EthWallet struct {
 	OriginalAddress string `json:"originalAddress" bson:"originalAddress"`
 	OAPAddress      string `json:"OAPAddress" bson:"OAPAddress"`
 
-	CreatedAt int64  `json:"createdAt" bson:"createdAt"` // stamp in ms as value
-	UpdatedAt int64  `json:"updatedAt" bson:"updatedAt"` // stamp in ms as value
-	UserId    string `json:"userId" bson:"userId"`       // receive via request
+	CreatedAt  int64 `json:"createdAt" bson:"createdAt"`   // stamp in ms as value
+	UpdatedAt  int64 `json:"updatedAt" bson:"updatedAt"`   // stamp in ms as value
+	CustomerId int64 `json:"customerId" bson:"customerId"` // receive via request
 	// PubKeys         []string `json:"pubKeys" bson:"pubKeys"`
 }
 
@@ -53,9 +53,9 @@ type TonWallet struct {
 	// use GetSubwallet if you need it :
 
 	// Subwallet uint32 `json:"subwallet" bson:"subwallet"`
-	CreatedAt int64  `json:"createdAt" bson:"createdAt"` // stamp in ms as value
-	UpdatedAt int64  `json:"updatedAt" bson:"updatedAt"` // stamp in ms as value
-	UserId    string `json:"userId" bson:"userId"`       // receive via request
+	CreatedAt  int64 `json:"createdAt" bson:"createdAt"`   // stamp in ms as value
+	UpdatedAt  int64 `json:"updatedAt" bson:"updatedAt"`   // stamp in ms as value
+	CustomerId int64 `json:"customerId" bson:"customerId"` // receive via request
 }
 
 type TrxWallet struct {
@@ -66,7 +66,7 @@ type TrxWallet struct {
 	PublicKey  string `json:"publicKey" bson:"publicKey"`
 	Wif        string `json:"wif" bson:"wif"`
 
-	CreatedAt int64  `json:"createdAt" bson:"createdAt"` // stamp in ms as value
-	UpdatedAt int64  `json:"updatedAt" bson:"updatedAt"` // stamp in ms as value
-	UserId    string `json:"userId" bson:"userId"`       // receive via request
+	CreatedAt  int64 `json:"createdAt" bson:"createdAt"`   // stamp in ms as value
+	UpdatedAt  int64 `json:"updatedAt" bson:"updatedAt"`   // stamp in ms as value
+	CustomerId int64 `json:"customerId" bson:"customerId"` // receive via request
 }

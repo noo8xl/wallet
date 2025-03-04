@@ -1,0 +1,1 @@
+Tuesday, 04-Mar-25 21:15:56 CET :> <InsertBtcWalletToOneTimeAddresses> got an error: Error 1054 (42S22): Unknown column 'scriptType' in 'field list' 

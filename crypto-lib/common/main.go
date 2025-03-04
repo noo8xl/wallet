@@ -13,16 +13,25 @@ import (
 	"wallet/lib/exceptions"
 )
 
-type ServiceType struct {
-	bitcoin.BitcoinService
-	ethereum.EthereumService
-	theopennetwork.TONService
-	tron.TronService
+type Service struct {
+	btcService *bitcoin.BitcoinService
+	ethService *ethereum.EthereumService
+	tonService *theopennetwork.TonService
+	trxService *tron.TronService
+}
+
+func InitService() *Service {
+	return &Service{
+		btcService: bitcoin.InitBitcoinService(),
+		ethService: ethereum.InitEthereumService(),
+		trxService: tron.InitTonService(),
+		tonService: theopennetwork.InitTonService(),
+	}
 }
 
 // CreateWalletList -> create a pool of the workers and
 // create a wallet for the user in each available blockchain
-func (s *ServiceType) CreateWalletList(userId int64) *pb.WalletList {
+func (s *Service) CreateWalletList(userId int64) *pb.WalletList {
 
 	result := make(chan *pb.WalletItem, 4)
 	var walletItem *pb.WalletItem
@@ -46,7 +55,7 @@ func (s *ServiceType) CreateWalletList(userId int64) *pb.WalletList {
 	wg.Wait()
 	close(result)
 
-	for i := 0; i < len(coinList); i++ {
+	for range len(coinList) {
 		walletItem = <-result
 		if walletItem != nil {
 			walletList.Wallet = append(walletList.Wallet, walletItem)
@@ -58,23 +67,41 @@ func (s *ServiceType) CreateWalletList(userId int64) *pb.WalletList {
 
 // DefineAndRunBlockchain -> define a blockchain, init connection
 // and then generate a new address for the user
-func (s *ServiceType) DefineBlockchainAndCreateWallet(coin string, userId int64) *pb.WalletItem {
+func (s *Service) DefineBlockchainAndCreatePermanentWallet(coin string, userId int64) *pb.WalletItem {
 
 	var walletItem *pb.WalletItem
 
 	switch strings.ToLower(coin) {
 	case "btc":
-		walletItem = s.BitcoinService.CreateWallet(userId)
-		// walletItem = &models.WalletListItem{CoinName: "btc", Address: "addressBTCHere123123_test"}
+		walletItem = s.btcService.CreatePermanentWallet(userId)
 	case "eth":
-		walletItem = s.EthereumService.CreateWallet(userId)
-		// walletItem = &models.WalletListItem{CoinName: "eth", Address: "addressETHHere568568_test"}
+		walletItem = s.ethService.CreatePermanentWallet(userId)
 	case "trx":
-		walletItem = s.TronService.CreateWallet(userId)
-		// walletItem = &models.WalletListItem{CoinName: "trx", Address: "addressTRXHere1249728_test"}
+		walletItem = s.trxService.CreatePermanentWallet(userId)
 	case "ton":
-		walletItem = s.TONService.CreateWallet(userId)
-		// walletItem = &models.WalletListItem{CoinName: "ton", Address: "addressTONHere56-0sj8_test"}
+		walletItem = s.tonService.CreatePermanentWallet(userId)
+	default:
+		exceptions.HandleAnException("Got an unknown blockchain in <get wallet>")
+	}
+
+	return walletItem
+}
+
+// DefineAndRunBlockchain -> define a blockchain, init connection
+// and then generate a new address for the user
+func (s *Service) DefineBlockchainAndCreateOneTimeAddress(coin string, userId int64) *pb.WalletItem {
+
+	var walletItem *pb.WalletItem
+
+	switch strings.ToLower(coin) {
+	case "btc":
+		walletItem = s.btcService.CreateOneTimeddress(userId)
+	case "eth":
+		walletItem = s.ethService.CreateOneTimeddress(userId)
+	case "trx":
+		walletItem = s.trxService.CreateOneTimeddress(userId)
+	case "ton":
+		walletItem = s.tonService.CreateOneTimeddress(userId)
 	default:
 		exceptions.HandleAnException("Got an unknown blockchain in <get wallet>")
 	}
@@ -84,19 +111,19 @@ func (s *ServiceType) DefineBlockchainAndCreateWallet(coin string, userId int64)
 
 // DefineBlockchainAndGetCoinBalance -> define a blockchain, init connection
 // and get a balance in crypto by address and coin name
-func (s *ServiceType) DefineBlockchainAndGetCoinBalance(coin, address string) *pb.CoinBalance {
+func (s *Service) DefineBlockchainAndGetCoinBalance(coin, address string) *pb.CoinBalance {
 
 	var balance string
 
 	switch coin {
 	case "btc":
-		balance = s.BitcoinService.GetBitcoinAddressBalance(address).String()
+		balance = s.btcService.GetBitcoinAddressBalance(address).String()
 	case "ton":
-		balance = s.TONService.GetTonBalanceByAddress(address).String()
+		balance = s.tonService.GetTonBalanceByAddress(address).String()
 	case "eth":
-		balance = s.EthereumService.GetEthBalanceByAddress(address).String()
+		balance = s.ethService.GetEthBalanceByAddress(address).String()
 	case "trx":
-		// balance = s.TronService.GetTonBalanceByAddress(address).String()
+		// balance = s.trxService.GetTonBalanceByAddress(address).String()
 	default:
 		exceptions.HandleAnException("Got an unknown blockchain at the <get wallet balance>")
 	}
@@ -104,7 +131,7 @@ func (s *ServiceType) DefineBlockchainAndGetCoinBalance(coin, address string) *p
 	return &pb.CoinBalance{CoinName: coin, Balance: balance}
 }
 
-func (s *ServiceType) DefineBlockchainAndGetCustomerBalance(currencyType string, customerId int64) *pb.CustomerBalance {
+func (s *Service) DefineBlockchainAndGetCustomerBalance(currencyType string, customerId int64) *pb.CustomerBalance {
 
 	// TODO: get value from the db by customer
 
@@ -127,19 +154,19 @@ func (s *ServiceType) DefineBlockchainAndGetCustomerBalance(currencyType string,
 
 // DefineBlockchainAndSendTsx -> define a blockchain, init connection
 // and send transaction to user by address and coinName
-func (s *ServiceType) DefineBlockchainAndSendSingleTsx(dto *pb.SendSingleTsxRequest) *pb.TransactionHash {
+func (s *Service) DefineBlockchainAndSendSingleTsx(dto *pb.SendSingleTsxRequest) *pb.TransactionHash {
 
 	var hash string
 
 	switch dto.CoinName {
 	case "btc":
-		hash = s.BitcoinService.SendSingleBtcTransaction(dto)
+		hash = s.btcService.SendSingleBtcTransaction(dto)
 	case "eth":
-		hash = s.EthereumService.SendSingleEthTransaction(dto)
+		hash = s.ethService.SendSingleEthTransaction(dto)
 	case "ton":
-		hash = s.TONService.SendSingleTonTransaction(dto)
+		hash = s.tonService.SendSingleTonTransaction(dto)
 	case "trx":
-		hash = s.TronService.SendSingleTrxTransaction(dto)
+		hash = s.trxService.SendSingleTrxTransaction(dto)
 	default:
 		exceptions.HandleAnException("Got an unknown blockchain at the <send transaction>")
 	}
@@ -149,7 +176,7 @@ func (s *ServiceType) DefineBlockchainAndSendSingleTsx(dto *pb.SendSingleTsxRequ
 
 // DefineBlockchainAndSendMultiptlyTsx -> define a blockchain, init connection
 // and send transaction to the list of users by address and coinName
-func (s *ServiceType) DefineBlockchainAndSendMultiptlyTsx(dto *pb.SendMultiplyTsxRequest) *pb.TransactionHash {
+func (s *Service) DefineBlockchainAndSendMultiptlyTsx(dto *pb.SendMultiplyTsxRequest) *pb.TransactionHash {
 
 	// TODO: impl this method
 
@@ -157,7 +184,7 @@ func (s *ServiceType) DefineBlockchainAndSendMultiptlyTsx(dto *pb.SendMultiplyTs
 
 	switch dto.CoinName {
 	case "btc":
-		// hash = s.BitcoinService.SendSingleBtcTransaction(dto)
+		// hash = s.btcService.SentMu(dto)
 	case "eth":
 		// hash = s.EthereumService.SendSingleEthTransaction(dto)
 	case "ton":

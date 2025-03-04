@@ -8,7 +8,7 @@ message WalletItem {
   int64 id = 1;
   string coin_name = 2;
   string address = 3;
-  double balance = 4;
+  // double balance = 4;
 }
 
 message CoinBalance {
@@ -32,7 +32,8 @@ message WalletList {
 
 service WalletService {
   rpc CreateWallet(CreateWalletRequest) returns (WalletList) {};
-  rpc CreateAddress(CreateAddressRequest) returns (WalletItem) {};
+  rpc CreatePermanentAddress(CreateAddressRequest) returns (WalletItem) {};
+  rpc CreateOneTimeAddress(CreateAddressRequest) returns (WalletItem) {};
 
   rpc GetCoinBalance(GetCoinBalanceRequest) returns (CoinBalance) {};
   rpc GetCustomerBalance(GetCustomerBalanceRequest) returns (CustomerBalance) {};

@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	WalletService_CreateWallet_FullMethodName       = "/api.WalletService/CreateWallet"
-	WalletService_CreateAddress_FullMethodName      = "/api.WalletService/CreateAddress"
-	WalletService_GetCoinBalance_FullMethodName     = "/api.WalletService/GetCoinBalance"
-	WalletService_GetCustomerBalance_FullMethodName = "/api.WalletService/GetCustomerBalance"
-	WalletService_SendSingleTsx_FullMethodName      = "/api.WalletService/SendSingleTsx"
-	WalletService_SendMultiplyTsx_FullMethodName    = "/api.WalletService/SendMultiplyTsx"
+	WalletService_CreateWallet_FullMethodName           = "/api.WalletService/CreateWallet"
+	WalletService_CreatePermanentAddress_FullMethodName = "/api.WalletService/CreatePermanentAddress"
+	WalletService_CreateOneTimeAddress_FullMethodName   = "/api.WalletService/CreateOneTimeAddress"
+	WalletService_GetCoinBalance_FullMethodName         = "/api.WalletService/GetCoinBalance"
+	WalletService_GetCustomerBalance_FullMethodName     = "/api.WalletService/GetCustomerBalance"
+	WalletService_SendSingleTsx_FullMethodName          = "/api.WalletService/SendSingleTsx"
+	WalletService_SendMultiplyTsx_FullMethodName        = "/api.WalletService/SendMultiplyTsx"
 )
 
 // WalletServiceClient is the client API for WalletService service.
@@ -32,7 +33,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WalletServiceClient interface {
 	CreateWallet(ctx context.Context, in *CreateWalletRequest, opts ...grpc.CallOption) (*WalletList, error)
-	CreateAddress(ctx context.Context, in *CreateAddressRequest, opts ...grpc.CallOption) (*WalletItem, error)
+	CreatePermanentAddress(ctx context.Context, in *CreateAddressRequest, opts ...grpc.CallOption) (*WalletItem, error)
+	CreateOneTimeAddress(ctx context.Context, in *CreateAddressRequest, opts ...grpc.CallOption) (*WalletItem, error)
 	GetCoinBalance(ctx context.Context, in *GetCoinBalanceRequest, opts ...grpc.CallOption) (*CoinBalance, error)
 	GetCustomerBalance(ctx context.Context, in *GetCustomerBalanceRequest, opts ...grpc.CallOption) (*CustomerBalance, error)
 	SendSingleTsx(ctx context.Context, in *SendSingleTsxRequest, opts ...grpc.CallOption) (*TransactionHash, error)
@@ -57,10 +59,20 @@ func (c *walletServiceClient) CreateWallet(ctx context.Context, in *CreateWallet
 	return out, nil
 }
 
-func (c *walletServiceClient) CreateAddress(ctx context.Context, in *CreateAddressRequest, opts ...grpc.CallOption) (*WalletItem, error) {
+func (c *walletServiceClient) CreatePermanentAddress(ctx context.Context, in *CreateAddressRequest, opts ...grpc.CallOption) (*WalletItem, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(WalletItem)
-	err := c.cc.Invoke(ctx, WalletService_CreateAddress_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, WalletService_CreatePermanentAddress_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *walletServiceClient) CreateOneTimeAddress(ctx context.Context, in *CreateAddressRequest, opts ...grpc.CallOption) (*WalletItem, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WalletItem)
+	err := c.cc.Invoke(ctx, WalletService_CreateOneTimeAddress_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +124,8 @@ func (c *walletServiceClient) SendMultiplyTsx(ctx context.Context, in *SendMulti
 // for forward compatibility.
 type WalletServiceServer interface {
 	CreateWallet(context.Context, *CreateWalletRequest) (*WalletList, error)
-	CreateAddress(context.Context, *CreateAddressRequest) (*WalletItem, error)
+	CreatePermanentAddress(context.Context, *CreateAddressRequest) (*WalletItem, error)
+	CreateOneTimeAddress(context.Context, *CreateAddressRequest) (*WalletItem, error)
 	GetCoinBalance(context.Context, *GetCoinBalanceRequest) (*CoinBalance, error)
 	GetCustomerBalance(context.Context, *GetCustomerBalanceRequest) (*CustomerBalance, error)
 	SendSingleTsx(context.Context, *SendSingleTsxRequest) (*TransactionHash, error)
@@ -130,8 +143,11 @@ type UnimplementedWalletServiceServer struct{}
 func (UnimplementedWalletServiceServer) CreateWallet(context.Context, *CreateWalletRequest) (*WalletList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateWallet not implemented")
 }
-func (UnimplementedWalletServiceServer) CreateAddress(context.Context, *CreateAddressRequest) (*WalletItem, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateAddress not implemented")
+func (UnimplementedWalletServiceServer) CreatePermanentAddress(context.Context, *CreateAddressRequest) (*WalletItem, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePermanentAddress not implemented")
+}
+func (UnimplementedWalletServiceServer) CreateOneTimeAddress(context.Context, *CreateAddressRequest) (*WalletItem, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateOneTimeAddress not implemented")
 }
 func (UnimplementedWalletServiceServer) GetCoinBalance(context.Context, *GetCoinBalanceRequest) (*CoinBalance, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCoinBalance not implemented")
@@ -184,20 +200,38 @@ func _WalletService_CreateWallet_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WalletService_CreateAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _WalletService_CreatePermanentAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateAddressRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WalletServiceServer).CreateAddress(ctx, in)
+		return srv.(WalletServiceServer).CreatePermanentAddress(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: WalletService_CreateAddress_FullMethodName,
+		FullMethod: WalletService_CreatePermanentAddress_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WalletServiceServer).CreateAddress(ctx, req.(*CreateAddressRequest))
+		return srv.(WalletServiceServer).CreatePermanentAddress(ctx, req.(*CreateAddressRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _WalletService_CreateOneTimeAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAddressRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WalletServiceServer).CreateOneTimeAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WalletService_CreateOneTimeAddress_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WalletServiceServer).CreateOneTimeAddress(ctx, req.(*CreateAddressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -286,8 +320,12 @@ var WalletService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _WalletService_CreateWallet_Handler,
 		},
 		{
-			MethodName: "CreateAddress",
-			Handler:    _WalletService_CreateAddress_Handler,
+			MethodName: "CreatePermanentAddress",
+			Handler:    _WalletService_CreatePermanentAddress_Handler,
+		},
+		{
+			MethodName: "CreateOneTimeAddress",
+			Handler:    _WalletService_CreateOneTimeAddress_Handler,
 		},
 		{
 			MethodName: "GetCoinBalance",

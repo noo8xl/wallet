@@ -9,7 +9,6 @@ import (
 	"wallet/config"
 	"wallet/database"
 	"wallet/lib/exceptions"
-	"wallet/lib/models"
 
 	pb "wallet/api"
 )
@@ -17,17 +16,31 @@ import (
 type TronService struct {
 	token   string
 	network string
-	db      database.DatabaseService
+	db      *database.DatabaseService
 }
 
-func init() {
-	initTrxConfig()
+func InitTonService() *TronService {
+	s := initTrxConfig()
+	db := database.InitDbService()
+	return &TronService{
+		token:   s.token,
+		network: s.network,
+		db:      db,
+	}
 }
 
-func (s *TronService) CreateWallet(userId int64) *pb.WalletItem {
-	// TODO : impl db
-	s.db.InsertTonWallet(&models.TonWallet{})
-	return &pb.WalletItem{CoinName: "trx", Address: "address_will_be_here", Balance: 0.0}
+func (s *TronService) CreatePermanentWallet(userId int64) *pb.WalletItem {
+
+	existedAddress := s.db.IsWalletExists(userId, "trx")
+	if !existedAddress {
+		return s.generateAddress(userId, 0)
+	}
+	exceptions.HandleAnHttpExceprion()
+	return nil
+}
+
+func (s *TronService) CreateOneTimeddress(userId int64) *pb.WalletItem {
+	return s.generateAddress(userId, 1)
 }
 
 // GetTrxBalance -> get balance by wallet address
@@ -74,6 +87,34 @@ func (s *TronService) GetTrxBalance(addr string) *big.Float {
 // ===========================================================================================//
 // ============================== function for internal usage ================================//
 // ===========================================================================================//
+
+func (s *TronService) generateAddress(userId int64, opt byte) *pb.WalletItem {
+
+	// TODO: create address *
+	// s.db.InsertTonWallet(&models.TonWallet{})
+
+	fmt.Println("userId -> ", userId)
+
+	// -> save wallet were to db!
+	switch opt {
+	case 0:
+		// save to permanent addresses
+
+		// if err := s.db.InsertBtcWallet(&wt); err != nil {
+		// 	exceptions.HandleAnException("<Database insertion> got an error: " + err.Error())
+		// }
+	case 1:
+		// save to one time addresses
+
+		// if err := s.db.InsertBtcWallet(&wt); err != nil {
+		// 	exceptions.HandleAnException("<Database insertion> got an error: " + err.Error())
+		// }
+	default:
+		exceptions.HandleAnException(fmt.Sprintf("Unknown opt value %d", opt))
+	}
+
+	return &pb.WalletItem{CoinName: "trx", Address: "address_will_be_here"}
+}
 
 func initTrxConfig() *TronService {
 	var conf = new(TronService)

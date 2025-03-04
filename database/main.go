@@ -13,12 +13,14 @@ type DatabaseService struct {
 	db *sql.DB
 }
 
-func init() {
-	dbConnect()
+func InitDbService() *DatabaseService {
+	return &DatabaseService{
+		db: &sql.DB{},
+	}
 }
 
 // dbConnect -> connect to database func
-func dbConnect() *DatabaseService {
+func dbConnect() *sql.DB {
 	connectionStr := config.GetSQLDatabaseConfig()
 	db, err := sql.Open("mysql", connectionStr)
 	if err != nil {
@@ -37,5 +39,5 @@ func dbConnect() *DatabaseService {
 
 	// fmt.Println("Connected!")
 
-	return &DatabaseService{db: db}
+	return db
 }

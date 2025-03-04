@@ -2,12 +2,16 @@
 package bitcoin
 
 import (
+	"fmt"
+	"log"
 	"math/big"
 	"time"
 	"wallet/config"
 	"wallet/database"
 	"wallet/lib/exceptions"
 	"wallet/lib/models"
+
+	// "wallet/lib/models"
 
 	pb "wallet/api"
 
@@ -16,52 +20,34 @@ import (
 
 type BitcoinService struct {
 	bc *gobcy.API
-	db database.DatabaseService
+	db *database.DatabaseService
 }
 
-func init() {
-	initBlockchain()
+func InitBitcoinService() *BitcoinService {
+	bc := initBlockchain()
+	db := database.InitDbService()
+	return &BitcoinService{
+		bc: bc,
+		db: db,
+	}
 }
 
 // CreateWallet is in charge of creating a new root wallet
-func (s *BitcoinService) CreateWallet(userId int64) *pb.WalletItem {
+func (s *BitcoinService) CreatePermanentWallet(userId int64) *pb.WalletItem {
 
-	stamp := time.Now().UnixMilli()
-	addressKeys, err := s.bc.GenAddrKeychain()
-	if err != nil {
-		exceptions.HandleAnException("<btc GenAddrKeychain> got an err: " + err.Error())
-	} else {
-		wt := models.BtcWallet{
-			Address:         addressKeys.Address,
-			PrivateKey:      addressKeys.Private,
-			PublicKey:       addressKeys.Public,
-			Wif:             addressKeys.Wif,
-			ScriptType:      addressKeys.ScriptType,
-			OriginalAddress: addressKeys.OriginalAddress,
-			OAPAddress:      addressKeys.OAPAddress,
-			CreatedAt:       stamp,
-			UpdatedAt:       stamp,
-			CustomerId:      userId,
-			// PubKeys:         addressKeys.PubKeys,
-		}
-
-		// -> save wallet to main db <-
-		if err := s.db.InsertBtcWallet(&wt); err != nil {
-			exceptions.HandleAnException("<Database insertion> got an error: " + err.Error())
-		}
+	existedAddress := s.db.IsWalletExists(userId, "btc")
+	log.Printf("existedAddress -> %v", existedAddress)
+	if !existedAddress {
+		return s.generateAddress(userId, 0)
 	}
 
-	return &pb.WalletItem{CoinName: "btc", Address: addressKeys.Address, Balance: 0.0}
+	exceptions.HandleAnHttpExceprion()
+	return nil
+
 }
 
-func (s *BitcoinService) CreateOneTimeBitcoinAddress(userID string) (string, error) {
-
-	addressKeys, err := s.bc.GenAddrKeychain()
-	if err != nil {
-		exceptions.HandleAnException("<btc GenAddrKeychain> got an err: " + err.Error())
-	}
-
-	return addressKeys.Address, nil
+func (s *BitcoinService) CreateOneTimeddress(userId int64) *pb.WalletItem {
+	return s.generateAddress(userId, 1)
 }
 
 // GetBitcoinAddressBalance -> get balance by address
@@ -97,10 +83,52 @@ func (s *BitcoinService) GetBitcoinAddressBalance(address string) *big.Float {
 }
 
 // ===========================================================================================//
-// ============================ init the blockchain connection ===============================//
-// ===========================================================================================//
+// ============================ init connection to the blockchain ============================//
+// ================================= and internal functions ==================================//
 
-func initBlockchain() *BitcoinService {
+func (s *BitcoinService) generateAddress(userId int64, opt byte) *pb.WalletItem {
+
+	stamp := time.Now().UnixMilli()
+	addressKeys, err := s.bc.GenAddrKeychain()
+
+	if err != nil {
+		exceptions.HandleAnException("<btc GenAddrKeychain> got an err: " + err.Error())
+	}
+
+	wt := &models.BtcWallet{
+		Address:         addressKeys.Address,
+		PrivateKey:      addressKeys.Private,
+		PublicKey:       addressKeys.Public,
+		Wif:             addressKeys.Wif,
+		ScriptType:      addressKeys.ScriptType,
+		OriginalAddress: addressKeys.OriginalAddress,
+		OAPAddress:      addressKeys.OAPAddress,
+		CreatedAt:       stamp,
+		UpdatedAt:       stamp,
+		CustomerId:      userId,
+		// PubKeys:         addressKeys.PubKeys,
+	}
+
+	// -> save wallet to db!
+	switch opt {
+	case 0:
+		err := s.db.InsertBtcWalletToPermanent(wt)
+		if err != nil {
+			exceptions.HandleAnException("<InsertBtcWalletToPermanent> got an error: " + err.Error())
+		}
+	case 1:
+		err := s.db.InsertBtcWalletToOneTimeAddresses(wt)
+		if err != nil {
+			exceptions.HandleAnException("<InsertBtcWalletToOneTimeAddresses> got an error: " + err.Error())
+		}
+	default:
+		exceptions.HandleAnException(fmt.Sprintf("Unknown opt value %d", opt))
+	}
+
+	return &pb.WalletItem{CoinName: "btc", Address: wt.Address}
+}
+
+func initBlockchain() *gobcy.API {
 
 	bc := new(gobcy.API)
 	apiToken := config.GetBitcoinAPIKey()
@@ -115,5 +143,7 @@ func initBlockchain() *BitcoinService {
 		// bc.Chain = "main"
 	}
 
-	return &BitcoinService{bc: bc}
+	// log.Println("bc is -> ", bc)
+
+	return bc
 }

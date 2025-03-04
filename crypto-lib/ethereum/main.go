@@ -18,46 +18,33 @@ import (
 
 type EthereumService struct {
 	bc *gobcy.API
-	db database.DatabaseService
+	db *database.DatabaseService
 }
 
-func init() {
-	initBlockchain()
+func InitEthereumService() *EthereumService {
+	bc := initBlockchain()
+	db := database.InitDbService()
+	return &EthereumService{
+		bc: bc,
+		db: db,
+	}
 }
 
 // ----------------------------------------------------------------
 
 // CreateWallet is in charge of creating a new root wallet
-func (s *EthereumService) CreateWallet(userId int64) *pb.WalletItem {
+func (s *EthereumService) CreatePermanentWallet(userId int64) *pb.WalletItem {
 
-	stamp := time.Now().UnixMilli()
-
-	addressKeys, err := s.bc.GenAddrKeychain()
-	if err != nil {
-		exceptions.HandleAnException("<eth GenAddrKeychain> got an err: " + err.Error())
-	} else {
-		fmt.Println("wallet is ->\n", addressKeys)
-		wt := models.EthWallet{
-			Address:         addressKeys.Address,
-			PrivateKey:      addressKeys.Private,
-			PublicKey:       addressKeys.Public,
-			Wif:             addressKeys.Wif,
-			ScriptType:      addressKeys.ScriptType,
-			OriginalAddress: addressKeys.OriginalAddress,
-			OAPAddress:      addressKeys.OAPAddress,
-			CreatedAt:       stamp,
-			UpdatedAt:       stamp,
-			CustomerId:      userId,
-			// PubKeys:         addressKeys.PubKeys,
-		}
-
-		// -> save wallet to main db <-
-		if err := s.db.InsertEthWallet(&wt); err != nil {
-			exceptions.HandleAnException("Database insertion got an error: " + err.Error())
-		}
+	existedAddress := s.db.IsWalletExists(userId, "eth")
+	if !existedAddress {
+		return s.generateAddress(userId, 0)
 	}
+	exceptions.HandleAnHttpExceprion()
+	return nil
+}
 
-	return &pb.WalletItem{CoinName: "eth", Address: addressKeys.Address, Balance: 0.0}
+func (s *EthereumService) CreateOneTimeddress(userId int64) *pb.WalletItem {
+	return s.generateAddress(userId, 1)
 }
 
 // GetEthereumAddressBalance -> get balance by address
@@ -84,7 +71,49 @@ func (s *EthereumService) GetEthBalanceByAddress(addr string) *big.Float {
 // ============================ init the blockchain connection ===============================//
 // ===========================================================================================//
 
-func initBlockchain() *EthereumService {
+func (s *EthereumService) generateAddress(userId int64, opt byte) *pb.WalletItem {
+
+	stamp := time.Now().UnixMilli()
+
+	addressKeys, err := s.bc.GenAddrKeychain()
+	if err != nil {
+		exceptions.HandleAnException("<eth GenAddrKeychain> got an err: " + err.Error())
+	}
+
+	wt := &models.EthWallet{
+		Address:         addressKeys.Address,
+		PrivateKey:      addressKeys.Private,
+		PublicKey:       addressKeys.Public,
+		Wif:             addressKeys.Wif,
+		ScriptType:      addressKeys.ScriptType,
+		OriginalAddress: addressKeys.OriginalAddress,
+		OAPAddress:      addressKeys.OAPAddress,
+		CreatedAt:       stamp,
+		UpdatedAt:       stamp,
+		CustomerId:      userId,
+		// PubKeys:         addressKeys.PubKeys,
+	}
+
+	// -> save wallet to db!
+	switch opt {
+	case 0:
+		err := s.db.InsertEthWalletToPermament(wt)
+		if err != nil {
+			exceptions.HandleAnException("<InsertEthWalletToPermament> got an error: " + err.Error())
+		}
+	case 1:
+		err := s.db.InsertEthWalletToOneTimeAddresses(wt)
+		if err != nil {
+			exceptions.HandleAnException("<InsertEthWalletToOneTimeAddresses> got an error: " + err.Error())
+		}
+	default:
+		exceptions.HandleAnException(fmt.Sprintf("Unknown opt value %d", opt))
+	}
+
+	return &pb.WalletItem{Address: wt.Address, CoinName: "eth"}
+}
+
+func initBlockchain() *gobcy.API {
 
 	bc := new(gobcy.API)
 	apiToken := config.GetBitcoinAPIKey()
@@ -99,5 +128,5 @@ func initBlockchain() *EthereumService {
 		bc.Chain = "main"
 	}
 
-	return &EthereumService{bc: bc}
+	return bc
 }

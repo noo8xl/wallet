@@ -22,42 +22,36 @@ import (
 // https://github.com/xssnick/tonutils-go#Wallet
 // -> the doc is here <-
 
-type TONService struct {
+type TonService struct {
 	client *ton.APIClient
-	db     database.DatabaseService
+	db     *database.DatabaseService
 }
 
-func init() {
-	initTonAPIConnection()
-}
-
-func (s *TONService) CreateWallet(userId int64) *pb.WalletItem {
-
-	words := wallet.NewSeed()
-	w, err := wallet.FromSeed(s.client, words, wallet.V4R2)
-	if err != nil {
-		exceptions.HandleAnException("<ton GenAddrKeychain> got an err: " + err.Error())
-	} else {
-		wt := models.TonWallet{
-			Address:    w.WalletAddress().String(),
-			AddrType:   w.Address().Type(),
-			PrivateKey: w.PrivateKey(),
-			BitsLen:    w.Address().BitsLen(),
-			CreatedAt:  time.Now().UnixMilli(),
-			UpdatedAt:  time.Now().UnixMilli(),
-			CustomerId: userId,
-		}
-		// -> save wallet were to db!
-		if err := s.db.InsertTonWallet(&wt); err != nil {
-			exceptions.HandleAnException("<Database insertion> got an error: " + err.Error())
-		}
+func InitTonService() *TonService {
+	client := initTonAPIConnection()
+	db := database.InitDbService()
+	return &TonService{
+		client: client,
+		db:     db,
 	}
+}
 
-	return &pb.WalletItem{CoinName: "ton", Address: w.WalletAddress().String(), Balance: 0.0}
+func (s *TonService) CreatePermanentWallet(userId int64) *pb.WalletItem {
+
+	existedAddress := s.db.IsWalletExists(userId, "ton")
+	if !existedAddress {
+		return s.generateAddress(userId, 0)
+	}
+	exceptions.HandleAnHttpExceprion()
+	return nil
+}
+
+func (s *TonService) CreateOneTimeddress(userId int64) *pb.WalletItem {
+	return s.generateAddress(userId, 1)
 }
 
 // GetTonBalanceByAddress -> get balance value by coin address
-func (s *TONService) GetTonBalanceByAddress(a string) *big.Float {
+func (s *TonService) GetTonBalanceByAddress(a string) *big.Float {
 
 	curBalance := new(big.Float)
 	ctx := context.Background()
@@ -96,8 +90,42 @@ func (s *TONService) GetTonBalanceByAddress(a string) *big.Float {
 // ============================ init the blockchain connection ===============================//
 // ===========================================================================================//
 
+func (s *TonService) generateAddress(userId int64, opt byte) *pb.WalletItem {
+	words := wallet.NewSeed()
+	w, err := wallet.FromSeed(s.client, words, wallet.V4R2)
+	if err != nil {
+		exceptions.HandleAnException("<ton GenAddrKeychain> got an err: " + err.Error())
+	}
+
+	wt := models.TonWallet{
+		Address:    w.WalletAddress().String(),
+		AddrType:   w.Address().Type(),
+		PrivateKey: w.PrivateKey(),
+		BitsLen:    w.Address().BitsLen(),
+		CreatedAt:  time.Now().UnixMilli(),
+		UpdatedAt:  time.Now().UnixMilli(),
+		CustomerId: userId,
+	}
+
+	// -> save wallet to db!
+	switch opt {
+	case 0:
+		if err := s.db.InsertTonWalletToPermanent(&wt); err != nil {
+			exceptions.HandleAnException("<InsertTonWalletToPermanent> got an error: " + err.Error())
+		}
+	case 1:
+		if err := s.db.InsertTonWalletToOneTimeAddresses(&wt); err != nil {
+			exceptions.HandleAnException("<InsertTonWalletToOneTimeAddresses> got an error: " + err.Error())
+		}
+	default:
+		exceptions.HandleAnException(fmt.Sprintf("Unknown opt value %d", opt))
+	}
+
+	return &pb.WalletItem{CoinName: "ton", Address: wt.Address}
+}
+
 // InitTonAPIConnection -> create ton blockchain connection
-func initTonAPIConnection() *TONService {
+func initTonAPIConnection() *ton.APIClient {
 
 	// configUrl := "https://ton.org/global.config.json" // -> Mainnet
 	configUrl := "https://ton-blockchain.github.io/testnet-global.config.json" // -> Testnet
@@ -108,6 +136,6 @@ func initTonAPIConnection() *TONService {
 	if err != nil {
 		exceptions.HandleAnException("Init <ton> blockchain got an error: " + err.Error())
 	}
-	return &TONService{client: ton.NewAPIClient(client)}
+	return ton.NewAPIClient(client)
 	// api = api.WithRetry() // if you want automatic retries with failover to another node
 }

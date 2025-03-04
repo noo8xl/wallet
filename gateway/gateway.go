@@ -1,4 +1,4 @@
-package gateway
+package main
 
 import (
 	"log"
@@ -12,11 +12,12 @@ import (
 )
 
 var (
-	grpcServiceAddress = "localhost:20002"
-	httpServerAddress  = "localhost:20003"
+	grpcServiceAddress = "127.0.0.1:20002"
+	httpServerAddress  = "127.0.0.1:20003"
 )
 
-func RunGateway() {
+func main() {
+
 	conn, err := grpc.NewClient(grpcServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		exceptions.HandleAnException("Got an error at <create grpc client>: " + err.Error())

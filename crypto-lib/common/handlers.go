@@ -23,7 +23,7 @@ func getaBigFloat(fiat float64, crypto *big.Float) *big.Float {
 
 // worker -> will be spanned in the create function to
 // create a list of wallets for the user
-func (s *ServiceType) worker(opts *routineOpts) {
+func (s *Service) worker(opts *routineOpts) {
 	defer opts.wg.Done()
-	opts.result <- s.DefineBlockchainAndCreateWallet(opts.coinName, opts.userId)
+	opts.result <- s.DefineBlockchainAndCreatePermanentWallet(opts.coinName, opts.userId)
 }

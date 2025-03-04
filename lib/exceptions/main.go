@@ -55,3 +55,12 @@ func HandleAnException(e string) {
 		os.Exit(1)
 	}
 }
+
+func HandleAnHttpExceprion() {
+	status, message := definteHttpError()
+	log.Printf("http exception: {message: %s, status %d} \n", message, status)
+}
+
+func definteHttpError() (int, string) {
+	return 400, "Bad Request"
+}

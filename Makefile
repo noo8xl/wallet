@@ -6,5 +6,9 @@ gen:
 	--go-grpc_out=. --go-grpc_opt=paths=source_relative \
 	api/wallet.proto
 
+
+test:
+	go test ./... -v
+
 migrate:
 	migrate create -ext=sql -dir=/database/migrations/ -seq $(migrationName)

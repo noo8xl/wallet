@@ -1,7 +1,6 @@
 package database
 
 import (
-	"log"
 	"strconv"
 	"strings"
 	"wallet/lib/exceptions"
@@ -9,12 +8,28 @@ import (
 
 // SelectBtcPrivate -> get private key by address and userId
 func (s *DatabaseService) SelectBtcPrivate(address string) string {
-	s.db = dbConnect()
+
 	var pKey string
+	s.db = dbConnect()
 	defer s.db.Close()
 
 	sql := strings.Join([]string{"SELECT privateKey FROM btcWallets WHERE address=", "\"", address, "\""}, "")
-	log.Println("sql str -> ", sql)
+	err := s.db.QueryRow(sql).Scan(&pKey)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return pKey
+}
+
+// SelectBtcPrivate -> get private key by address and userId
+func (s *DatabaseService) SelectEthPrivate(address string) string {
+
+	var pKey string
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	sql := strings.Join([]string{"SELECT privateKey FROM ethWallets WHERE address=", "\"", address, "\""}, "")
 	err := s.db.QueryRow(sql).Scan(&pKey)
 	if err != nil {
 		panic(err.Error())
@@ -25,8 +40,9 @@ func (s *DatabaseService) SelectBtcPrivate(address string) string {
 
 // SelectTonPrivate -> get private key by address and userId
 func (s *DatabaseService) SelectTonPrivate(address string) []byte {
-	s.db = dbConnect()
+
 	var pKey []byte
+	s.db = dbConnect()
 	defer s.db.Close()
 
 	sql := strings.Join([]string{"SELECT privateKey FROM tonWallets WHERE address=", "\"", address, "\""}, "")
@@ -41,13 +57,14 @@ func (s *DatabaseService) SelectTonPrivate(address string) []byte {
 // IsWalletExists -> check is wallet already exists for current user
 // to get a permission to create a permanent wallet for him
 func (s *DatabaseService) IsWalletExists(userId int64, bc string) bool {
-	s.db = dbConnect()
+
 	var id int64 = 0
 	strId := strconv.Itoa(int(userId))
-	tableName := s.defineAndGetTableNameByBlockchainShortName(bc)
+	s.db = dbConnect()
 	defer s.db.Close()
+	tableName := s.defineAndGetTableNameByBlockchainShortName(bc)
 
-	sql := strings.Join([]string{"SELECT id FROM ", tableName, " WHERE userId=", strId, ";"}, "")
+	sql := strings.Join([]string{"SELECT id FROM ", tableName, " WHERE userId=\"", strId, "\";"}, "")
 	err := s.db.QueryRow(sql).Scan(&id)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {

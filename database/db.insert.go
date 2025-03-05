@@ -90,7 +90,6 @@ func (s *DatabaseService) InsertEthWalletToOneTimeAddresses(dto *models.EthWalle
 // InsertTonWallet -> insert user wallet data to db
 func (s *DatabaseService) InsertTonWalletToPermanent(dto *models.TonWallet) error {
 	s.db = dbConnect()
-	// ctx := context.Background()
 	defer s.db.Close()
 
 	// should be updated
@@ -110,7 +109,6 @@ func (s *DatabaseService) InsertTonWalletToPermanent(dto *models.TonWallet) erro
 
 func (s *DatabaseService) InsertTonWalletToOneTimeAddresses(dto *models.TonWallet) error {
 	s.db = dbConnect()
-	// ctx := context.Background()
 	defer s.db.Close()
 
 	// should be updated
@@ -122,6 +120,44 @@ func (s *DatabaseService) InsertTonWalletToOneTimeAddresses(dto *models.TonWalle
 	res := s.db.QueryRow(
 		sql, dto.Address, dto.AddrType,
 		dto.PrivateKey, dto.BitsLen, dto.CustomerId,
+	)
+	// fmt.Println("sql result is -> ", &res)
+
+	return res.Err()
+}
+
+func (s *DatabaseService) InsertTrxWalletToPermanent(dto *models.TrxWallet) error {
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	// * pubKeys are temporary excluded  *
+	sql := strings.Join([]string{
+		"INSERT INTO trxWallets ",
+		"(address, privateKey, publicKey, wif, userId) ",
+		"VALUES (?,?,?,?,?)",
+	}, "")
+	res := s.db.QueryRow(
+		sql, dto.Address, dto.PrivateKey,
+		dto.PublicKey, dto.Wif, dto.CustomerId,
+	)
+	// fmt.Println("sql result is -> ", &res)
+
+	return res.Err()
+}
+
+func (s *DatabaseService) InsertTrxWalletToOneTimeAddresses(dto *models.TrxWallet) error {
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	// * pubKeys are temporary excluded  *
+	sql := strings.Join([]string{
+		"INSERT INTO oneTimeTrxWallets ",
+		"(address, privateKey, publicKey, wif, userId) ",
+		"VALUES (?,?,?,?,?)",
+	}, "")
+	res := s.db.QueryRow(
+		sql, dto.Address, dto.PrivateKey,
+		dto.PublicKey, dto.Wif, dto.CustomerId,
 	)
 	// fmt.Println("sql result is -> ", &res)
 

@@ -13,8 +13,8 @@ import (
 type BtcWallet struct {
 	ID              uint64 `json:"id" bson:"id, omitempty"` // auto increment value
 	Address         string `json:"address" bson:"address"`
-	PrivateKey      string `json:"privateKey" bson:"privateKey"`
-	PublicKey       string `json:"publicKey" bson:"publicKey"`
+	PrivateKey      string `json:"privateKey" bson:"privateKey"` // encrypted str will be here
+	PublicKey       string `json:"publicKey" bson:"publicKey"`   // encrypted str will be here
 	Wif             string `json:"wif" bson:"wif"`
 	ScriptType      string `json:"scriptType" bson:"scriptType"`
 	OriginalAddress string `json:"originalAddress" bson:"originalAddress"`
@@ -29,8 +29,8 @@ type BtcWallet struct {
 type EthWallet struct {
 	ID              uint64 `json:"id" bson:"id, omitempty"` // auto increment value
 	Address         string `json:"address" bson:"address"`
-	PrivateKey      string `json:"privateKey" bson:"privateKey"`
-	PublicKey       string `json:"publicKey" bson:"publicKey"`
+	PrivateKey      string `json:"privateKey" bson:"privateKey"` // encrypted str will be here
+	PublicKey       string `json:"publicKey" bson:"publicKey"`   // encrypted str will be here
 	Wif             string `json:"wif" bson:"wif"`
 	ScriptType      string `json:"scriptType" bson:"scriptType"`
 	OriginalAddress string `json:"originalAddress" bson:"originalAddress"`
@@ -62,8 +62,8 @@ type TrxWallet struct {
 	ID uint64
 
 	Address    string `json:"address" bson:"address"`
-	PrivateKey string `json:"privateKey" bson:"privateKey"`
-	PublicKey  string `json:"publicKey" bson:"publicKey"`
+	PrivateKey string `json:"privateKey" bson:"privateKey"` // encrypted str will be here
+	PublicKey  string `json:"publicKey" bson:"publicKey"`   // encrypted str will be here
 	Wif        string `json:"wif" bson:"wif"`
 
 	CreatedAt  int64 `json:"createdAt" bson:"createdAt"`   // stamp in ms as value

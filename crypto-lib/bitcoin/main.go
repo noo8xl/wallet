@@ -8,7 +8,9 @@ import (
 	"time"
 	"wallet/config"
 	"wallet/database"
+	"wallet/lib/cache"
 	"wallet/lib/exceptions"
+	"wallet/lib/helpers"
 	"wallet/lib/models"
 
 	// "wallet/lib/models"
@@ -19,16 +21,19 @@ import (
 )
 
 type BitcoinService struct {
-	bc *gobcy.API
-	db *database.DatabaseService
+	bc    *gobcy.API
+	db    *database.DatabaseService
+	store *cache.Store
 }
 
 func InitBitcoinService() *BitcoinService {
 	bc := initBlockchain()
 	db := database.InitDbService()
+	s := cache.InitNewStore()
 	return &BitcoinService{
-		bc: bc,
-		db: db,
+		bc:    bc,
+		db:    db,
+		store: s,
 	}
 }
 
@@ -53,6 +58,10 @@ func (s *BitcoinService) CreateOneTimeddress(userId int64) *pb.WalletItem {
 // GetBitcoinAddressBalance -> get balance by address
 func (s *BitcoinService) GetBitcoinAddressBalance(address string) *big.Float {
 
+	result, err := s.store.GetAKey(address)
+	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
+		return val
+	}
 	// log.Println("adr -> ", address)
 	// ###################################################
 	// ######## DOESN"T WORK IN THE TEST-NET! ############
@@ -79,6 +88,7 @@ func (s *BitcoinService) GetBitcoinAddressBalance(address string) *big.Float {
 	currentBalance.SetString(addressData.Balance.String())
 
 	bal := new(big.Float).Mul(currentBalance, big.NewFloat(satoshiPerByte))
+	s.store.SetAKey(address, bal.String())
 	return bal
 }
 
@@ -92,13 +102,24 @@ func (s *BitcoinService) generateAddress(userId int64, opt byte) *pb.WalletItem 
 	addressKeys, err := s.bc.GenAddrKeychain()
 
 	if err != nil {
-		exceptions.HandleAnException("<btc GenAddrKeychain> got an err: " + err.Error())
+		exceptions.HandleAnException("<btc generateAddress> got an err: " + err.Error())
+	}
+
+	key := config.GetAnEncryptionKey()
+	encPrivate, err := helpers.EncryptKey(key, addressKeys.Private)
+	if err != nil {
+		exceptions.HandleAnException("private key encoding error")
+	}
+
+	encPublic, err := helpers.EncryptKey(key, addressKeys.Public)
+	if err != nil {
+		exceptions.HandleAnException("public key encoding error")
 	}
 
 	wt := &models.BtcWallet{
 		Address:         addressKeys.Address,
-		PrivateKey:      addressKeys.Private,
-		PublicKey:       addressKeys.Public,
+		PrivateKey:      encPrivate,
+		PublicKey:       encPublic,
 		Wif:             addressKeys.Wif,
 		ScriptType:      addressKeys.ScriptType,
 		OriginalAddress: addressKeys.OriginalAddress,

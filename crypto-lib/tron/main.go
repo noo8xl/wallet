@@ -8,7 +8,9 @@ import (
 	"strings"
 	"wallet/config"
 	"wallet/database"
+	"wallet/lib/cache"
 	"wallet/lib/exceptions"
+	"wallet/lib/helpers"
 
 	pb "wallet/api"
 )
@@ -17,15 +19,18 @@ type TronService struct {
 	token   string
 	network string
 	db      *database.DatabaseService
+	store   *cache.Store
 }
 
 func InitTonService() *TronService {
-	s := initTrxConfig()
+	svc := initTrxConfig()
 	db := database.InitDbService()
+	s := cache.InitNewStore()
 	return &TronService{
-		token:   s.token,
-		network: s.network,
+		token:   svc.token,
+		network: svc.network,
 		db:      db,
+		store:   s,
 	}
 }
 
@@ -45,6 +50,11 @@ func (s *TronService) CreateOneTimeddress(userId int64) *pb.WalletItem {
 
 // GetTrxBalance -> get balance by wallet address
 func (s *TronService) GetTrxBalance(addr string) *big.Float {
+
+	result, err := s.store.GetAKey(addr)
+	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
+		return val
+	}
 
 	var currentBalance *big.Float
 	var reqString string
@@ -79,7 +89,7 @@ func (s *TronService) GetTrxBalance(addr string) *big.Float {
 	fmt.Println(string(body))
 
 	// return response.balance / 1000000 // dividing on 1_000_000
-
+	s.store.SetAKey(addr, string(body))
 	return currentBalance
 
 }
@@ -94,6 +104,17 @@ func (s *TronService) generateAddress(userId int64, opt byte) *pb.WalletItem {
 	// s.db.InsertTonWallet(&models.TonWallet{})
 
 	fmt.Println("userId -> ", userId)
+
+	// key := config.GetAnEncryptionKey()
+	// encPrivate, err := helpers.EncryptKey(key, addressKeys.Private)
+	// if err != nil {
+	// 	exceptions.HandleAnException("private key encoding error")
+	// }
+
+	// encPublic, err := helpers.EncryptKey(key, addressKeys.Public)
+	// if err != nil {
+	// 	exceptions.HandleAnException("public key encoding error")
+	// }
 
 	// -> save wallet were to db!
 	switch opt {

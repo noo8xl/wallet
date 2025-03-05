@@ -8,7 +8,9 @@ import (
 	"time"
 	"wallet/config"
 	"wallet/database"
+	"wallet/lib/cache"
 	"wallet/lib/exceptions"
+	"wallet/lib/helpers"
 	"wallet/lib/models"
 
 	pb "wallet/api"
@@ -17,16 +19,19 @@ import (
 )
 
 type EthereumService struct {
-	bc *gobcy.API
-	db *database.DatabaseService
+	bc    *gobcy.API
+	db    *database.DatabaseService
+	store *cache.Store
 }
 
 func InitEthereumService() *EthereumService {
 	bc := initBlockchain()
 	db := database.InitDbService()
+	s := cache.InitNewStore()
 	return &EthereumService{
-		bc: bc,
-		db: db,
+		bc:    bc,
+		db:    db,
+		store: s,
 	}
 }
 
@@ -48,14 +53,20 @@ func (s *EthereumService) CreateOneTimeddress(userId int64) *pb.WalletItem {
 }
 
 // GetEthereumAddressBalance -> get balance by address
-func (s *EthereumService) GetEthBalanceByAddress(addr string) *big.Float {
+func (s *EthereumService) GetEthBalanceByAddress(address string) *big.Float {
+
+	result, err := s.store.GetAKey(address)
+	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
+		return val
+	}
+
 	currentBalance := new(big.Float)
 
 	// ###################################################
 	// ######## DOESN"T WORK IN THE TEST-NET! ############
 	// ###################################################
 
-	addressData, err := s.bc.GetAddrBal(addr, nil)
+	addressData, err := s.bc.GetAddrBal(address, nil)
 	if err != nil {
 		exceptions.HandleAnException("<eth GetAddrBal> got an err: " + err.Error())
 	}
@@ -64,6 +75,7 @@ func (s *EthereumService) GetEthBalanceByAddress(addr string) *big.Float {
 	ethValue := new(big.Float).Quo(currentBalance, big.NewFloat(math.Pow10(20)))
 
 	// fmt.Println("balance -> ", currentBalance)
+	s.store.SetAKey(address, ethValue.String())
 	return ethValue
 }
 
@@ -80,10 +92,21 @@ func (s *EthereumService) generateAddress(userId int64, opt byte) *pb.WalletItem
 		exceptions.HandleAnException("<eth GenAddrKeychain> got an err: " + err.Error())
 	}
 
+	key := config.GetAnEncryptionKey()
+	encPrivate, err := helpers.EncryptKey(key, addressKeys.Private)
+	if err != nil {
+		exceptions.HandleAnException("private key encoding error")
+	}
+
+	encPublic, err := helpers.EncryptKey(key, addressKeys.Public)
+	if err != nil {
+		exceptions.HandleAnException("public key encoding error")
+	}
+
 	wt := &models.EthWallet{
 		Address:         addressKeys.Address,
-		PrivateKey:      addressKeys.Private,
-		PublicKey:       addressKeys.Public,
+		PrivateKey:      encPrivate,
+		PublicKey:       encPublic,
 		Wif:             addressKeys.Wif,
 		ScriptType:      addressKeys.ScriptType,
 		OriginalAddress: addressKeys.OriginalAddress,

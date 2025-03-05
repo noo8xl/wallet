@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"time"
 	"wallet/database"
+	"wallet/lib/cache"
 	"wallet/lib/exceptions"
 	"wallet/lib/helpers"
 	"wallet/lib/models"
@@ -25,14 +26,17 @@ import (
 type TonService struct {
 	client *ton.APIClient
 	db     *database.DatabaseService
+	store  *cache.Store
 }
 
 func InitTonService() *TonService {
 	client := initTonAPIConnection()
 	db := database.InitDbService()
+	s := cache.InitNewStore()
 	return &TonService{
 		client: client,
 		db:     db,
+		store:  s,
 	}
 }
 
@@ -52,6 +56,11 @@ func (s *TonService) CreateOneTimeddress(userId int64) *pb.WalletItem {
 
 // GetTonBalanceByAddress -> get balance value by coin address
 func (s *TonService) GetTonBalanceByAddress(a string) *big.Float {
+
+	result, err := s.store.GetAKey(a)
+	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
+		return val
+	}
 
 	curBalance := new(big.Float)
 	ctx := context.Background()
@@ -81,8 +90,8 @@ func (s *TonService) GetTonBalanceByAddress(a string) *big.Float {
 	fmt.Printf("Status: %s\n", acc.State.Status)
 
 	curBalance.SetString(acc.State.Balance.String())
-	fmt.Println(" curBalance --> ", curBalance)
-
+	// fmt.Println(" curBalance --> ", curBalance)
+	s.store.SetAKey(a, curBalance.String())
 	return curBalance
 }
 
@@ -97,7 +106,7 @@ func (s *TonService) generateAddress(userId int64, opt byte) *pb.WalletItem {
 		exceptions.HandleAnException("<ton GenAddrKeychain> got an err: " + err.Error())
 	}
 
-	wt := models.TonWallet{
+	wt := &models.TonWallet{
 		Address:    w.WalletAddress().String(),
 		AddrType:   w.Address().Type(),
 		PrivateKey: w.PrivateKey(),
@@ -110,11 +119,11 @@ func (s *TonService) generateAddress(userId int64, opt byte) *pb.WalletItem {
 	// -> save wallet to db!
 	switch opt {
 	case 0:
-		if err := s.db.InsertTonWalletToPermanent(&wt); err != nil {
+		if err := s.db.InsertTonWalletToPermanent(wt); err != nil {
 			exceptions.HandleAnException("<InsertTonWalletToPermanent> got an error: " + err.Error())
 		}
 	case 1:
-		if err := s.db.InsertTonWalletToOneTimeAddresses(&wt); err != nil {
+		if err := s.db.InsertTonWalletToOneTimeAddresses(wt); err != nil {
 			exceptions.HandleAnException("<InsertTonWalletToOneTimeAddresses> got an error: " + err.Error())
 		}
 	default:

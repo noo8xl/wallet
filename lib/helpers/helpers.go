@@ -2,9 +2,11 @@ package helpers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math"
+	"math/big"
 	"net/http"
 	"strings"
 	"wallet/lib/exceptions"
@@ -27,10 +29,14 @@ func round(num float64) int {
 }
 
 // ValidateArgs -> validate range of arguments
-func ValidateArgs(argsLen int, expectedValue int) {
-	if argsLen < expectedValue {
-		exceptions.HandleAnException("wrong args range")
+func ValidateArgs(argsLen int, expectedValue int) error {
+	if argsLen <= 0 || expectedValue <= 0 {
+		return errors.New("err: args val our of range")
 	}
+	if argsLen < expectedValue {
+		return errors.New("err: args val our of range")
+	}
+	return nil
 }
 
 func ValidateCard(cardNum string) {
@@ -38,11 +44,26 @@ func ValidateCard(cardNum string) {
 
 }
 
-func CheckAnInternetConnection() {
+func CheckNetworkConnection() error {
 	_, err := http.Get("http://clients3.google.com/generate_204")
 	if err != nil {
-		exceptions.HandleAnException("")
+		return errors.New("network connection failed: " + err.Error())
 	}
+	return nil
+}
+
+// BalanceFromStoreFormatter -> result arg is a string representation of float64 number
+func BalanceFromStoreFormatter(result string, e error) *big.Float {
+
+	if e != nil {
+		return nil
+	}
+	if result != "" {
+		b := new(big.Float)
+		b.SetString(result)
+		return b
+	}
+	return nil
 }
 
 // ===========================================================================================//
@@ -53,7 +74,7 @@ func CheckAnInternetConnection() {
 // doc is here -> https://www.coingecko.com/api/documentation <-
 
 // GetRate -> get coin rate in chosen currency by coinName
-func GetRate(coinName string, currency string) float64 {
+func GetRate(coinName, currency string) float64 {
 
 	var resp map[string]map[string]float64
 	uri := strings.Join([]string{"https://api.coingecko.com/api/v3/simple/price?ids=", coinName, "&vs_currencies=", currency}, "")

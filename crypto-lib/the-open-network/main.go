@@ -23,24 +23,24 @@ import (
 // https://github.com/xssnick/tonutils-go#Wallet
 // -> the doc is here <-
 
-type TonService struct {
+type Service struct {
 	client *ton.APIClient
 	db     *database.DatabaseService
 	store  *cache.Store
 }
 
-func InitTonService() *TonService {
+func InitTonService() *Service {
 	client := initTonAPIConnection()
 	db := database.InitDbService()
 	s := cache.InitNewStore()
-	return &TonService{
+	return &Service{
 		client: client,
 		db:     db,
 		store:  s,
 	}
 }
 
-func (s *TonService) CreatePermanentWallet(userId int64) *pb.WalletItem {
+func (s *Service) CreatePermanentWallet(userId int64) *pb.WalletItem {
 
 	existedAddress := s.db.IsWalletExists(userId, "ton")
 	if !existedAddress {
@@ -50,12 +50,12 @@ func (s *TonService) CreatePermanentWallet(userId int64) *pb.WalletItem {
 	return nil
 }
 
-func (s *TonService) CreateOneTimeddress(userId int64) *pb.WalletItem {
+func (s *Service) CreateOneTimeddress(userId int64) *pb.WalletItem {
 	return s.generateAddress(userId, 1)
 }
 
 // GetTonBalanceByAddress -> get balance value by coin address
-func (s *TonService) GetTonBalanceByAddress(a string) *big.Float {
+func (s *Service) GetBalanceByAddress(a string) *big.Float {
 
 	result, err := s.store.GetAKey(a)
 	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
@@ -99,7 +99,7 @@ func (s *TonService) GetTonBalanceByAddress(a string) *big.Float {
 // ============================ init the blockchain connection ===============================//
 // ===========================================================================================//
 
-func (s *TonService) generateAddress(userId int64, opt byte) *pb.WalletItem {
+func (s *Service) generateAddress(userId int64, opt byte) *pb.WalletItem {
 	words := wallet.NewSeed()
 	w, err := wallet.FromSeed(s.client, words, wallet.V4R2)
 	if err != nil {

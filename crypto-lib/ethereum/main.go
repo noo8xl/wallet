@@ -18,17 +18,17 @@ import (
 	"github.com/blockcypher/gobcy/v2"
 )
 
-type EthereumService struct {
+type Service struct {
 	bc    *gobcy.API
 	db    *database.DatabaseService
 	store *cache.Store
 }
 
-func InitEthereumService() *EthereumService {
+func InitEthereumService() *Service {
 	bc := initBlockchain()
 	db := database.InitDbService()
 	s := cache.InitNewStore()
-	return &EthereumService{
+	return &Service{
 		bc:    bc,
 		db:    db,
 		store: s,
@@ -38,7 +38,7 @@ func InitEthereumService() *EthereumService {
 // ----------------------------------------------------------------
 
 // CreateWallet is in charge of creating a new root wallet
-func (s *EthereumService) CreatePermanentWallet(userId int64) *pb.WalletItem {
+func (s *Service) CreatePermanentWallet(userId int64) *pb.WalletItem {
 
 	existedAddress := s.db.IsWalletExists(userId, "eth")
 	if !existedAddress {
@@ -48,12 +48,12 @@ func (s *EthereumService) CreatePermanentWallet(userId int64) *pb.WalletItem {
 	return nil
 }
 
-func (s *EthereumService) CreateOneTimeddress(userId int64) *pb.WalletItem {
+func (s *Service) CreateOneTimeddress(userId int64) *pb.WalletItem {
 	return s.generateAddress(userId, 1)
 }
 
 // GetEthereumAddressBalance -> get balance by address
-func (s *EthereumService) GetEthBalanceByAddress(address string) *big.Float {
+func (s *Service) GetBalanceByAddress(address string) *big.Float {
 
 	result, err := s.store.GetAKey(address)
 	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
@@ -83,7 +83,7 @@ func (s *EthereumService) GetEthBalanceByAddress(address string) *big.Float {
 // ============================ init the blockchain connection ===============================//
 // ===========================================================================================//
 
-func (s *EthereumService) generateAddress(userId int64, opt byte) *pb.WalletItem {
+func (s *Service) generateAddress(userId int64, opt byte) *pb.WalletItem {
 
 	stamp := time.Now().UnixMilli()
 

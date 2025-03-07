@@ -4,9 +4,12 @@ package tron
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"strings"
+	"wallet/config"
 	"wallet/lib/exceptions"
+	"wallet/lib/helpers"
 
 	pb "wallet/api"
 )
@@ -15,7 +18,7 @@ import (
 // -> the doc is here <-
 //
 // ValidateTrxAddress -> validate address in tron network
-func (s *TronService) ValidateTrxAddress(addr string) bool {
+func (s *Service) ValidateTrxAddress(addr string) bool {
 
 	// testNet + path + payload
 	var response struct {
@@ -48,8 +51,16 @@ func (s *TronService) ValidateTrxAddress(addr string) bool {
 	return response.Result
 }
 
-func (s *TronService) SendSingleTrxTransaction(dto *pb.SendSingleTsxRequest) string {
+func (s *Service) SendSingleTransaction(dto *pb.SendSingleTsxRequest) string {
 
+	key := config.GetAnEncryptionKey()
+	encryptedPk := s.db.SelectTrxPrivate(dto.Payee.PeyeeAddress)
+	privateKey, err := helpers.DecryptKey(key, encryptedPk)
+	if err != nil {
+		exceptions.HandleAnException("SendSingleTrxTransaction got an error: " + err.Error())
+	}
+
+	log.Printf("trx private key is -> %s", privateKey)
 	// save a tsx details to db
-	return "hash"
+	return "trx tsx hash"
 }

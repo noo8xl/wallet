@@ -106,3 +106,37 @@ CREATE TABLE IF NOT EXISTS oneTimeTonWallets(
 # common user rights only to insert data and use a few procedures* 
 # admin user -> have rights to insert, select
 # root -> have all privileges
+
+
+DELIMITER $$
+CREATE PROCEDURE IF NOT EXISTS update_wallet_balance(
+  IN tableName VARCHAR(50),
+  IN addr VARCHAR(100),
+  IN newBalance FLOAT
+)
+BEGIN
+
+  BEGIN TRY
+
+    UPDATE tableName
+    SET balance=newBalance, 
+        updated_at=CURRENT_TIMESTAMP()
+    WHERE address=addr;
+
+	COMMIT ;
+
+  END TRY
+
+  BEGIN CATCH
+
+    ROLLBACK ;
+
+  END CATCH
+
+END $$
+DELIMITER ;
+
+CALL update_wallet_balance(1,0.332);
+
+
+

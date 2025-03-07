@@ -67,15 +67,37 @@ func TestConnection(t *testing.T) {
 
 func TestCleanUp(t *testing.T) {
 
-	TEST_SVC.deleteTestWalletItem("btcWallets")
-	TEST_SVC.deleteTestWalletItem("oneTimeBtcWallets")
+	err := TEST_SVC.deleteTestWalletItem("btcWallets")
+	if err != nil {
+		t.Fatalf("TestCleanUp returns an error: %v", err)
+	}
+	err = TEST_SVC.deleteTestWalletItem("oneTimeBtcWallets")
+	if err != nil {
+		t.Fatalf("TestCleanUp returns an error: %v", err)
+	}
 
-	TEST_SVC.deleteTestWalletItem("ethWallets")
-	TEST_SVC.deleteTestWalletItem("oneTimeEthWallets")
+	err = TEST_SVC.deleteTestWalletItem("ethWallets")
+	if err != nil {
+		t.Fatalf("TestCleanUp returns an error: %v", err)
+	}
+	err = TEST_SVC.deleteTestWalletItem("oneTimeEthWallets")
+	if err != nil {
+		t.Fatalf("TestCleanUp returns an error: %v", err)
+	}
 
-	TEST_SVC.deleteTestWalletItem("tonWallets")
-	TEST_SVC.deleteTestWalletItem("oneTimeTonWallets")
+	err = TEST_SVC.deleteTestWalletItem("tonWallets")
+	if err != nil {
+		t.Fatalf("TestCleanUp returns an error: %v", err)
+	}
+	err = TEST_SVC.deleteTestWalletItem("oneTimeTonWallets")
+	if err != nil {
+		t.Fatalf("TestCleanUp returns an error: %v", err)
+	}
 
 	// TEST_SVC.deleteTestWalletItem("trxWallet")
 	// TEST_SVC.deleteTestWalletItem("oneTimeTrxWallets")
+
+	// TEST_SVC.deleteTestWalletItem("solWallet")
+	// TEST_SVC.deleteTestWalletItem("oneTimeSolWallets")
+
 }

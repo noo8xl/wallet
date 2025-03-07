@@ -20,17 +20,17 @@ import (
 	"github.com/blockcypher/gobcy/v2"
 )
 
-type BitcoinService struct {
+type Service struct {
 	bc    *gobcy.API
 	db    *database.DatabaseService
 	store *cache.Store
 }
 
-func InitBitcoinService() *BitcoinService {
+func InitBitcoinService() *Service {
 	bc := initBlockchain()
 	db := database.InitDbService()
 	s := cache.InitNewStore()
-	return &BitcoinService{
+	return &Service{
 		bc:    bc,
 		db:    db,
 		store: s,
@@ -38,7 +38,7 @@ func InitBitcoinService() *BitcoinService {
 }
 
 // CreateWallet is in charge of creating a new root wallet
-func (s *BitcoinService) CreatePermanentWallet(userId int64) *pb.WalletItem {
+func (s *Service) CreatePermanentWallet(userId int64) *pb.WalletItem {
 
 	existedAddress := s.db.IsWalletExists(userId, "btc")
 	log.Printf("existedAddress -> %v", existedAddress)
@@ -51,12 +51,12 @@ func (s *BitcoinService) CreatePermanentWallet(userId int64) *pb.WalletItem {
 
 }
 
-func (s *BitcoinService) CreateOneTimeddress(userId int64) *pb.WalletItem {
+func (s *Service) CreateOneTimeddress(userId int64) *pb.WalletItem {
 	return s.generateAddress(userId, 1)
 }
 
 // GetBitcoinAddressBalance -> get balance by address
-func (s *BitcoinService) GetBitcoinAddressBalance(address string) *big.Float {
+func (s *Service) GetBalanceByAddress(address string) *big.Float {
 
 	result, err := s.store.GetAKey(address)
 	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
@@ -96,7 +96,7 @@ func (s *BitcoinService) GetBitcoinAddressBalance(address string) *big.Float {
 // ============================ init connection to the blockchain ============================//
 // ================================= and internal functions ==================================//
 
-func (s *BitcoinService) generateAddress(userId int64, opt byte) *pb.WalletItem {
+func (s *Service) generateAddress(userId int64, opt byte) *pb.WalletItem {
 
 	stamp := time.Now().UnixMilli()
 	addressKeys, err := s.bc.GenAddrKeychain()

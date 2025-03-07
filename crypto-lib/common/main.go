@@ -14,10 +14,10 @@ import (
 )
 
 type Service struct {
-	btcService *bitcoin.BitcoinService
-	ethService *ethereum.EthereumService
-	tonService *theopennetwork.TonService
-	trxService *tron.TronService
+	btcService *bitcoin.Service
+	ethService *ethereum.Service
+	tonService *theopennetwork.Service
+	trxService *tron.Service
 }
 
 func InitService() *Service {
@@ -117,13 +117,13 @@ func (s *Service) DefineBlockchainAndGetCoinBalance(coin, address string) *pb.Co
 
 	switch coin {
 	case "btc":
-		balance = s.btcService.GetBitcoinAddressBalance(address).String()
+		balance = s.btcService.GetBalanceByAddress(address).String()
 	case "ton":
-		balance = s.tonService.GetTonBalanceByAddress(address).String()
+		balance = s.tonService.GetBalanceByAddress(address).String()
 	case "eth":
-		balance = s.ethService.GetEthBalanceByAddress(address).String()
+		balance = s.ethService.GetBalanceByAddress(address).String()
 	case "trx":
-		// balance = s.trxService.GetTonBalanceByAddress(address).String()
+		// balance = s.trxService.GetBalanceByAddress(address).String()
 	default:
 		exceptions.HandleAnException("Got an unknown blockchain at the <get wallet balance>")
 	}
@@ -160,13 +160,13 @@ func (s *Service) DefineBlockchainAndSendSingleTsx(dto *pb.SendSingleTsxRequest)
 
 	switch dto.CoinName {
 	case "btc":
-		hash = s.btcService.SendSingleBtcTransaction(dto)
+		hash = s.btcService.SendSingleTransaction(dto)
 	case "eth":
-		hash = s.ethService.SendSingleEthTransaction(dto)
+		hash = s.ethService.SendSingleTransaction(dto)
 	case "ton":
-		hash = s.tonService.SendSingleTonTransaction(dto)
+		hash = s.tonService.SendSingleTransaction(dto)
 	case "trx":
-		hash = s.trxService.SendSingleTrxTransaction(dto)
+		hash = s.trxService.SendSingleTransaction(dto)
 	default:
 		exceptions.HandleAnException("Got an unknown blockchain at the <send transaction>")
 	}

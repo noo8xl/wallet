@@ -15,18 +15,18 @@ import (
 	pb "wallet/api"
 )
 
-type TronService struct {
+type Service struct {
 	token   string
 	network string
 	db      *database.DatabaseService
 	store   *cache.Store
 }
 
-func InitTonService() *TronService {
+func InitTonService() *Service {
 	svc := initTrxConfig()
 	db := database.InitDbService()
 	s := cache.InitNewStore()
-	return &TronService{
+	return &Service{
 		token:   svc.token,
 		network: svc.network,
 		db:      db,
@@ -34,7 +34,7 @@ func InitTonService() *TronService {
 	}
 }
 
-func (s *TronService) CreatePermanentWallet(userId int64) *pb.WalletItem {
+func (s *Service) CreatePermanentWallet(userId int64) *pb.WalletItem {
 
 	existedAddress := s.db.IsWalletExists(userId, "trx")
 	if !existedAddress {
@@ -44,12 +44,12 @@ func (s *TronService) CreatePermanentWallet(userId int64) *pb.WalletItem {
 	return nil
 }
 
-func (s *TronService) CreateOneTimeddress(userId int64) *pb.WalletItem {
+func (s *Service) CreateOneTimeddress(userId int64) *pb.WalletItem {
 	return s.generateAddress(userId, 1)
 }
 
 // GetTrxBalance -> get balance by wallet address
-func (s *TronService) GetTrxBalance(addr string) *big.Float {
+func (s *Service) GetBalanceByAddress(addr string) *big.Float {
 
 	result, err := s.store.GetAKey(addr)
 	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
@@ -98,7 +98,7 @@ func (s *TronService) GetTrxBalance(addr string) *big.Float {
 // ============================== function for internal usage ================================//
 // ===========================================================================================//
 
-func (s *TronService) generateAddress(userId int64, opt byte) *pb.WalletItem {
+func (s *Service) generateAddress(userId int64, opt byte) *pb.WalletItem {
 
 	// TODO: create address *
 	// s.db.InsertTonWallet(&models.TonWallet{})
@@ -137,11 +137,11 @@ func (s *TronService) generateAddress(userId int64, opt byte) *pb.WalletItem {
 	return &pb.WalletItem{CoinName: "trx", Address: "address_will_be_here"}
 }
 
-func initTrxConfig() *TronService {
-	var conf = new(TronService)
+func initTrxConfig() *Service {
+	var conf = new(Service)
 	conf.token = config.GetTronAPIKey()
 	conf.network = "https://api.trongrid.io" // mainnet
 	// conf.netwotk = "https://api.shasta.trongrid.io" // testnet
 	//
-	return &TronService{token: conf.token, network: conf.network}
+	return &Service{token: conf.token, network: conf.network}
 }

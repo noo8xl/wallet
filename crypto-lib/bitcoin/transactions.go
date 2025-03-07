@@ -3,7 +3,9 @@ package bitcoin
 import (
 	"fmt"
 	"math/big"
+	"wallet/config"
 	"wallet/lib/exceptions"
+	"wallet/lib/helpers"
 
 	pb "wallet/api"
 
@@ -13,10 +15,15 @@ import (
 // https://www.blockcypher.com/dev/?go#introduction -> doc is here <-
 
 // CreateSingleBitcoinTransactionSkeleton -> create transaction skeleton, sign in locally and send to user for validate it
-func (s *BitcoinService) SendSingleBtcTransaction(dto *pb.SendSingleTsxRequest) string {
+func (s *Service) SendSingleTransaction(dto *pb.SendSingleTsxRequest) string {
 	var skeleton gobcy.TXSkel
-	privateKey := s.db.SelectBtcPrivate(dto.Payee.PeyeeAddress)
-	var err error
+
+	key := config.GetAnEncryptionKey()
+	encryptedPk := s.db.SelectBtcPrivate(dto.Payee.PeyeeAddress)
+	privateKey, err := helpers.DecryptKey(key, encryptedPk)
+	if err != nil {
+		exceptions.HandleAnException("SendSingleBtcTransaction got an error: " + err.Error())
+	}
 
 	amount := new(big.Int)
 	amount.SetString(dto.Beneficiar.Amount, 10)

@@ -3,18 +3,24 @@ package ethereum
 import (
 	"fmt"
 	"math/big"
+	"wallet/config"
 	"wallet/lib/exceptions"
+	"wallet/lib/helpers"
 
 	pb "wallet/api"
 
 	"github.com/blockcypher/gobcy/v2"
 )
 
-func (s *EthereumService) SendSingleEthTransaction(dto *pb.SendSingleTsxRequest) string {
-
+func (s *Service) SendSingleTransaction(dto *pb.SendSingleTsxRequest) string {
 	var skeleton gobcy.TXSkel
-	privateKey := s.db.SelectBtcPrivate(dto.Payee.PeyeeAddress)
-	var err error
+
+	key := config.GetAnEncryptionKey()
+	encryptedPk := s.db.SelectEthPrivate(dto.Payee.PeyeeAddress)
+	privateKey, err := helpers.DecryptKey(key, encryptedPk)
+	if err != nil {
+		exceptions.HandleAnException("SendSingleEthTransaction got an error: " + err.Error())
+	}
 
 	amount := new(big.Int)
 	amount.SetString(dto.Beneficiar.Amount, 10)

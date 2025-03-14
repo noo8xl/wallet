@@ -38,7 +38,7 @@ type WalletServiceClient interface {
 	GetCoinBalance(ctx context.Context, in *GetCoinBalanceRequest, opts ...grpc.CallOption) (*CoinBalance, error)
 	GetCustomerBalance(ctx context.Context, in *GetCustomerBalanceRequest, opts ...grpc.CallOption) (*CustomerBalance, error)
 	SendSingleTsx(ctx context.Context, in *SendSingleTsxRequest, opts ...grpc.CallOption) (*TransactionHash, error)
-	SendMultiplyTsx(ctx context.Context, in *SendMultiplyTsxRequest, opts ...grpc.CallOption) (*TransactionHash, error)
+	SendMultiplyTsx(ctx context.Context, in *SendMultipleTsxRequest, opts ...grpc.CallOption) (*TransactionHash, error)
 }
 
 type walletServiceClient struct {
@@ -109,7 +109,7 @@ func (c *walletServiceClient) SendSingleTsx(ctx context.Context, in *SendSingleT
 	return out, nil
 }
 
-func (c *walletServiceClient) SendMultiplyTsx(ctx context.Context, in *SendMultiplyTsxRequest, opts ...grpc.CallOption) (*TransactionHash, error) {
+func (c *walletServiceClient) SendMultiplyTsx(ctx context.Context, in *SendMultipleTsxRequest, opts ...grpc.CallOption) (*TransactionHash, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TransactionHash)
 	err := c.cc.Invoke(ctx, WalletService_SendMultiplyTsx_FullMethodName, in, out, cOpts...)
@@ -129,7 +129,7 @@ type WalletServiceServer interface {
 	GetCoinBalance(context.Context, *GetCoinBalanceRequest) (*CoinBalance, error)
 	GetCustomerBalance(context.Context, *GetCustomerBalanceRequest) (*CustomerBalance, error)
 	SendSingleTsx(context.Context, *SendSingleTsxRequest) (*TransactionHash, error)
-	SendMultiplyTsx(context.Context, *SendMultiplyTsxRequest) (*TransactionHash, error)
+	SendMultiplyTsx(context.Context, *SendMultipleTsxRequest) (*TransactionHash, error)
 	mustEmbedUnimplementedWalletServiceServer()
 }
 
@@ -158,7 +158,7 @@ func (UnimplementedWalletServiceServer) GetCustomerBalance(context.Context, *Get
 func (UnimplementedWalletServiceServer) SendSingleTsx(context.Context, *SendSingleTsxRequest) (*TransactionHash, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendSingleTsx not implemented")
 }
-func (UnimplementedWalletServiceServer) SendMultiplyTsx(context.Context, *SendMultiplyTsxRequest) (*TransactionHash, error) {
+func (UnimplementedWalletServiceServer) SendMultiplyTsx(context.Context, *SendMultipleTsxRequest) (*TransactionHash, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendMultiplyTsx not implemented")
 }
 func (UnimplementedWalletServiceServer) mustEmbedUnimplementedWalletServiceServer() {}
@@ -291,7 +291,7 @@ func _WalletService_SendSingleTsx_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _WalletService_SendMultiplyTsx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendMultiplyTsxRequest)
+	in := new(SendMultipleTsxRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -303,7 +303,7 @@ func _WalletService_SendMultiplyTsx_Handler(srv interface{}, ctx context.Context
 		FullMethod: WalletService_SendMultiplyTsx_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WalletServiceServer).SendMultiplyTsx(ctx, req.(*SendMultiplyTsxRequest))
+		return srv.(WalletServiceServer).SendMultiplyTsx(ctx, req.(*SendMultipleTsxRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -67,8 +67,8 @@ func (svc *service) SendSingleTransaction(ctx context.Context, payload *pb.SendS
 	return hash, nil
 }
 
-func (svc *service) SendMultiplyTransaction(ctx context.Context, payload *pb.SendMultiplyTsxRequest) (*pb.TransactionHash, error) {
-	log.Printf("New SendMultiplyTransaction request received! SendMultiplyTransaction %v", payload)
-	hash := svc.DefineBlockchainAndSendMultiptlyTsx(payload)
+func (svc *service) SendMultiplyTransaction(ctx context.Context, payload *pb.SendMultipleTsxRequest) (*pb.TransactionHash, error) {
+	log.Printf("New SendMultipleTransaction request received! SendMultipleTransaction %v", payload)
+	hash := svc.DefineBlockchainAndSendMultiptleTsx(payload)
 	return hash, nil
 }

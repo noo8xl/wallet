@@ -22,7 +22,7 @@ type Service struct {
 	store   *cache.Store
 }
 
-func InitTonService() *Service {
+func InitService() *Service {
 	svc := initTrxConfig()
 	db := database.InitDbService()
 	s := cache.InitNewStore()

@@ -102,6 +102,111 @@ CREATE TABLE IF NOT EXISTS oneTimeTonWallets(
   PRIMARY KEY(id)
 );
 
+CREATE TABLE IF NOT EXISTS dogeWallets (
+  id INT UNSIGNED auto_increment,
+  address VARCHAR(100) NOT NULL,
+  privateKey VARCHAR(500) NOT NULL,
+  publicKey VARCHAR(500) NOT NULL,
+  wif VARCHAR(500) NOT NULL,
+  scriptType VARCHAR(500),
+  originalAddress VARCHAR(500),
+  oapAddress VARCHAR(500),
+  
+  balance DOUBLE UNSIGNED NOT NULL DEFAULT 0.0,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  userId INT UNSIGNED NOT NULL,
+
+  PRIMARY KEY(id)
+);
+
+CREATE TABLE IF NOT EXISTS oneTimeDogeWallets (
+  id INT UNSIGNED auto_increment,
+  address VARCHAR(100) NOT NULL,
+  privateKey VARCHAR(500) NOT NULL,
+  publicKey VARCHAR(500) NOT NULL,
+  wif VARCHAR(500) NOT NULL,
+  isUsed BOOL NOT NULL DEFAULT 0,
+  balance DOUBLE UNSIGNED NOT NULL DEFAULT 0.0,
+
+  
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  userId INT UNSIGNED NOT NULL,
+
+  PRIMARY KEY(id)
+);
+
+CREATE TABLE IF NOT EXISTS ltcWallets (
+  id INT UNSIGNED auto_increment,
+  address VARCHAR(100) NOT NULL,
+  privateKey VARCHAR(500) NOT NULL,
+  publicKey VARCHAR(500) NOT NULL,
+  wif VARCHAR(500) NOT NULL,
+  scriptType VARCHAR(500),
+  originalAddress VARCHAR(500),
+  oapAddress VARCHAR(500),
+  
+  balance DOUBLE UNSIGNED NOT NULL DEFAULT 0.0,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  userId INT UNSIGNED NOT NULL,
+
+  PRIMARY KEY(id)
+);
+
+CREATE TABLE IF NOT EXISTS oneTimeLtcWallets (
+  id INT UNSIGNED auto_increment,
+  address VARCHAR(100) NOT NULL,
+  privateKey VARCHAR(500) NOT NULL,
+  publicKey VARCHAR(500) NOT NULL,
+  wif VARCHAR(500) NOT NULL,
+  isUsed BOOL NOT NULL DEFAULT 0,
+  balance DOUBLE UNSIGNED NOT NULL DEFAULT 0.0,
+
+  
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  userId INT UNSIGNED NOT NULL,
+
+  PRIMARY KEY(id)
+);
+
+
+CREATE TABLE IF NOT EXISTS solWallets (
+  id INT UNSIGNED auto_increment,
+  address VARCHAR(100) NOT NULL,
+  privateKey VARCHAR(500) NOT NULL,
+  publicKey VARCHAR(500) NOT NULL,
+  wif VARCHAR(500) NOT NULL,
+  scriptType VARCHAR(500),
+  originalAddress VARCHAR(500),
+  oapAddress VARCHAR(500),
+  
+  balance DOUBLE UNSIGNED NOT NULL DEFAULT 0.0,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  userId INT UNSIGNED NOT NULL,
+
+  PRIMARY KEY(id)
+);
+
+CREATE TABLE IF NOT EXISTS oneTimeSolWallets (
+  id INT UNSIGNED auto_increment,
+  address VARCHAR(100) NOT NULL,
+  privateKey VARCHAR(500) NOT NULL,
+  publicKey VARCHAR(500) NOT NULL,
+  wif VARCHAR(500) NOT NULL,
+  isUsed BOOL NOT NULL DEFAULT 0,
+  balance DOUBLE UNSIGNED NOT NULL DEFAULT 0.0,
+
+  
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  userId INT UNSIGNED NOT NULL,
+
+  PRIMARY KEY(id)
+);
 
 # common user rights only to insert data and use a few procedures* 
 # admin user -> have rights to insert, select

@@ -10,7 +10,7 @@ import (
 // -> if ur tests got an unexpected results - run:
 // ../../database/main_test.go -> TestCleanUp to clean all data after previous testing
 var (
-	TEST_SVC                 = ethereum.InitEthereumService()
+	TEST_SVC                 = ethereum.InitService()
 	TEST_ADDRESS             = "0x000000633b68f5D8D3a86593ebB815b4663BCBe0" // random address from etherscan
 	TEST_USER_ID       int64 = 90990                                        // also used as a peyee
 	TEST_BENEFICIAR_ID int64 = 8831721
@@ -34,7 +34,7 @@ var (
 )
 
 func TestInitService(t *testing.T) {
-	svc := ethereum.InitEthereumService()
+	svc := ethereum.InitService()
 	if svc == nil {
 		t.Fatalf("cannot init service. Got %v instead of &ethereum.Service{}", svc)
 	}

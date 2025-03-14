@@ -3,82 +3,254 @@ package database
 import "testing"
 
 func TestSelectBtcPrivate(t *testing.T) {
-	pk := TEST_SVC.SelectBtcPrivate(TEST_BTC_WT.Address)
-	if pk == "" {
-		t.Fatalf("expected value: string NOT NULL val; got: %s", pk)
+	var err error
+
+	_, err = TEST_SVC.SelectBtcPrivate(TEST_BTC_WT.Address, 0)
+	if err != nil {
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
-	// t.Logf("NOT NULL string public key is: %s", pk)
+
+	_, err = TEST_SVC.SelectBtcPrivate(TEST_BTC_WT.Address, 1)
+	if err != nil {
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
+	}
 }
 
 func TestSelectEthPrivate(t *testing.T) {
-	pk := TEST_SVC.SelectEthPrivate(TEST_ETH_WT.Address)
-	if pk == "" {
-		t.Fatalf("expected value: string NOT NULL val; got: %s", pk)
+	var err error
+
+	_, err = TEST_SVC.SelectEthPrivate(TEST_ETH_WT.Address, 0)
+	if err != nil {
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
-	// t.Logf("NOT NULL string public key is: %v", pk)
+	_, err = TEST_SVC.SelectEthPrivate(TEST_ETH_WT.Address, 1)
+	if err != nil {
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
+	}
 }
 
 func TestSelectTonPrivate(t *testing.T) {
-	pk := TEST_SVC.SelectTonPrivate(TEST_TON_WT.Address)
-	if string(pk) == "" {
-		t.Fatalf("expected keyvalue: []byte NOT NULL val; got: %s", pk)
+	var err error
+
+	_, err = TEST_SVC.SelectTonPrivate(TEST_TON_WT.Address, 0)
+	if err != nil {
+		t.Fatalf("expected keyvalue: []byte NOT NULL val; got an error: %v", err)
 	}
-	// t.Logf("NOT NULL []byte public key is: %s", pk)
+
+	_, err = TEST_SVC.SelectTonPrivate(TEST_TON_WT.Address, 1)
+	if err != nil {
+		t.Fatalf("expected keyvalue: []byte NOT NULL val; got an error: %v", err)
+	}
+
+}
+
+func TestSelectTrxPrivate(t *testing.T) {
+	var err error
+
+	_, err = TEST_SVC.SelectTrxPrivate(TEST_TON_WT.Address, 0)
+	if err != nil {
+		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+	}
+
+	_, err = TEST_SVC.SelectTrxPrivate(TEST_TON_WT.Address, 1)
+	if err != nil {
+		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+	}
+
+}
+
+func TestSelectSolPrivate(t *testing.T) {
+	var err error
+
+	_, err = TEST_SVC.SelectSolPrivate(TEST_TON_WT.Address, 0)
+	if err != nil {
+		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+	}
+
+	_, err = TEST_SVC.SelectSolPrivate(TEST_TON_WT.Address, 1)
+	if err != nil {
+		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+	}
+
+}
+
+func TestSelectDogePrivate(t *testing.T) {
+	var err error
+
+	_, err = TEST_SVC.SelectDogePrivate(TEST_TON_WT.Address, 0)
+	if err != nil {
+		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+	}
+
+	_, err = TEST_SVC.SelectDogePrivate(TEST_TON_WT.Address, 1)
+	if err != nil {
+		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+	}
+
+}
+
+func TestSelectLtcPrivate(t *testing.T) {
+	var err error
+
+	_, err = TEST_SVC.SelectLtcPrivate(TEST_TON_WT.Address, 0)
+	if err != nil {
+		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+	}
+
+	_, err = TEST_SVC.SelectLtcPrivate(TEST_TON_WT.Address, 1)
+	if err != nil {
+		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+	}
+
 }
 
 func TestDefineAndGetTableNameByBlockchainShortName(t *testing.T) {
+	var err error
 
-	tableName := TEST_SVC.defineAndGetTableNameByBlockchainShortName("btc")
-	if tableName != "btcWallets" {
-		t.Fatalf("btc blockchain expected: <btcWallets> string val; got: %s", tableName)
+	_, err = TEST_SVC.defineAndGetPermanentTableNameByBlockchainShortName("btc")
+	if err != nil {
+		t.Fatalf("btc blockchain expected: <btcWallets> string val; got: %v", err)
 	}
 
-	tableName = TEST_SVC.defineAndGetTableNameByBlockchainShortName("eth")
-	if tableName != "ethWallets" {
-		t.Fatalf("eth blockchain expected: <ethWallets> string val; got: %s", tableName)
+	_, err = TEST_SVC.defineAndGetOneTimeTableNameByBlockchainShortName("btc")
+	if err != nil {
+		t.Fatalf("btc blockchain expected: <oneTimeBtcWallets> string val; got: %v", err)
 	}
 
-	tableName = TEST_SVC.defineAndGetTableNameByBlockchainShortName("ton")
-	if tableName != "tonWallets" {
-		t.Fatalf("ton blockchain expected: <tonWallets> string val; got: %s", tableName)
+	_, err = TEST_SVC.defineAndGetPermanentTableNameByBlockchainShortName("eth")
+	if err != nil {
+		t.Fatalf("eth blockchain expected: <ethWallets> string val; got: %v", err)
 	}
 
-	// tableName = TEST_SVC.defineAndGetTableNameByBlockchainShortName("trx")
-	// if tableName != "trxWallets" {
-	// 	t.Fatalf("trx blockchain expected: <trxWallets> string val; got: %s", tableName)
-	// }
+	_, err = TEST_SVC.defineAndGetOneTimeTableNameByBlockchainShortName("eth")
+	if err != nil {
+		t.Fatalf("eth blockchain expected: <oneTimeEthWallets> string val; got: %v", err)
+	}
 
-	// tableName = TEST_SVC.defineAndGetTableNameByBlockchainShortName("sol")
-	// if tableName != "solWallets" {
-	// 	t.Fatalf("sol blockchain expected: <solWallets> string val; got: %s", tableName)
-	// }
+	_, err = TEST_SVC.defineAndGetPermanentTableNameByBlockchainShortName("ltc")
+	if err != nil {
+		t.Fatalf("ltc blockchain expected: <ltcWallets> string val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.defineAndGetOneTimeTableNameByBlockchainShortName("ltc")
+	if err != nil {
+		t.Fatalf("ltc blockchain expected: <oneTimeLtcWallets> string val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.defineAndGetPermanentTableNameByBlockchainShortName("doge")
+	if err != nil {
+		t.Fatalf("doge blockchain expected: <dogeWallets> string val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.defineAndGetOneTimeTableNameByBlockchainShortName("doge")
+	if err != nil {
+		t.Fatalf("doge blockchain expected: <oneTimeDogeWallets> string val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.defineAndGetPermanentTableNameByBlockchainShortName("ton")
+	if err != nil {
+		t.Fatalf("ton blockchain expected: <tonWallets> string val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.defineAndGetOneTimeTableNameByBlockchainShortName("ton")
+	if err != nil {
+		t.Fatalf("ton blockchain expected: <tonWallets> string val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.defineAndGetPermanentTableNameByBlockchainShortName("trx")
+	if err != nil {
+		t.Fatalf("trx blockchain expected: <trxWallets> string val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.defineAndGetOneTimeTableNameByBlockchainShortName("trx")
+	if err != nil {
+		t.Fatalf("trx blockchain expected: <oneTimeTrxWallets> string val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.defineAndGetPermanentTableNameByBlockchainShortName("sol")
+	if err != nil {
+		t.Fatalf("sol blockchain expected: <solWallets> string val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.defineAndGetOneTimeTableNameByBlockchainShortName("sol")
+	if err != nil {
+		t.Fatalf("sol blockchain expected: <oneTimaSolWallets> string val; got: %v", err)
+	}
 
 }
 
 func TestIWalletExists(t *testing.T) {
 
-	isExists := TEST_SVC.IsWalletExists(90990, "btc")
-	if !isExists {
-		t.Fatalf("btc blockchain expected: bool true val; got: %v", isExists)
+	var err error
+
+	_, err = TEST_SVC.IsWalletExists(90990, "btc", 0)
+	if err != nil {
+		t.Fatalf("btc blockchain expected: bool true val; got an error: %v", err)
 	}
 
-	isExists = TEST_SVC.IsWalletExists(90990, "eth")
-	if !isExists {
-		t.Fatalf("eth blockchain expected: bool true val; got: %v", isExists)
+	_, err = TEST_SVC.IsWalletExists(90990, "btc", 1)
+	if err != nil {
+		t.Fatalf("btc blockchain expected: bool true val; got an error: %v", err)
 	}
 
-	isExists = TEST_SVC.IsWalletExists(90990, "ton")
-	if !isExists {
-		t.Fatalf("ton blockchain expected: bool true val; got: %v", isExists)
+	_, err = TEST_SVC.IsWalletExists(90990, "eth", 0)
+	if err != nil {
+		t.Fatalf("eth blockchain expected: bool true val; got: %v", err)
 	}
 
-	// isExists = TEST_SVC.IsWalletExists(90990, "trx")
-	// if !isExists {
-	// 	t.Fatalf("trx blockchain expected: bool true val; got: %v", isExists)
-	// }
+	_, err = TEST_SVC.IsWalletExists(90990, "eth", 1)
+	if err != nil {
+		t.Fatalf("eth blockchain expected: bool true val; got: %v", err)
+	}
 
-	// isExists = TEST_SVC.IsWalletExists(90990, "sol")
-	// if !isExists {
-	// 	t.Fatalf("sol blockchain expected: bool true val; got: %v", isExists)
-	// }
+	_, err = TEST_SVC.IsWalletExists(90990, "doge", 0)
+	if err != nil {
+		t.Fatalf("doge blockchain expected: bool true val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.IsWalletExists(90990, "doge", 1)
+	if err != nil {
+		t.Fatalf("doge blockchain expected: bool true val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.IsWalletExists(90990, "ltc", 0)
+	if err != nil {
+		t.Fatalf("ltc blockchain expected: bool true val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.IsWalletExists(90990, "ltc", 1)
+	if err != nil {
+		t.Fatalf("ltc blockchain expected: bool true val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.IsWalletExists(90990, "ton", 0)
+	if err != nil {
+		t.Fatalf("ton blockchain expected: bool true val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.IsWalletExists(90990, "ton", 1)
+	if err != nil {
+		t.Fatalf("ton blockchain expected: bool true val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.IsWalletExists(90990, "trx", 0)
+	if err != nil {
+		t.Fatalf("trx blockchain expected: bool true val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.IsWalletExists(90990, "trx", 1)
+	if err != nil {
+		t.Fatalf("trx blockchain expected: bool true val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.IsWalletExists(90990, "sol", 0)
+	if err != nil {
+		t.Fatalf("sol blockchain expected: bool true val; got: %v", err)
+	}
+
+	_, err = TEST_SVC.IsWalletExists(90990, "sol", 1)
+	if err != nil {
+		t.Fatalf("sol blockchain expected: bool true val; got: %v", err)
+	}
+
 }

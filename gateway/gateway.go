@@ -13,7 +13,7 @@ import (
 
 var (
 	grpcServiceAddress = "127.0.0.1:20002"
-	httpServerAddress  = "127.0.0.1:20003"
+	httpServerAddress  = "0.0.0.0:20003"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	log.Println("Server was started at ", grpcServiceAddress)
+	log.Println("Server was started at ", httpServerAddress)
 
 	client := pb.NewWalletServiceClient(conn)
 

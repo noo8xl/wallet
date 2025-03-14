@@ -1,4 +1,4 @@
-package solana
+package dogecoin
 
 import pb "wallet/api"
 

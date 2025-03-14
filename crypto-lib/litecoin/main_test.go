@@ -1,42 +1,42 @@
-package bitcoin_test
+package litecoin_test
 
 import (
 	"math/big"
 	"testing"
 	"wallet/api"
-	"wallet/crypto-lib/bitcoin"
+	"wallet/crypto-lib/litecoin"
 )
 
 // -> if ur tests got an unexpected results - run:
 // ../../database/main_test.go -> TestCleanUp to clean all data after previous testing
 var (
-	TEST_SVC                 = bitcoin.InitService()
-	TEST_ADDRESS             = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh" // random address from the blockchain explorer
-	TEST_USER_ID       int64 = 90990                                        // also used as a peyee
+	TEST_SVC                 = litecoin.InitService()
+	TEST_ADDRESS             = "ltc address" // random address from the
+	TEST_USER_ID       int64 = 90990         // also used as a peyee
 	TEST_BENEFICIAR_ID int64 = 8831721
 
 	TEST_BENEFICIAR_ADDRESS = ""
 	TEST_PEYEE_ADDRESS      = ""
 
 	TEST_SINGLE_TSX_DTO = &api.SendSingleTsxRequest{
-		CoinName: "btc",
+		CoinName: "ltc",
 		Payee: &api.PeyeeData{
 			PeyeeAddress: "",
 			PeyeeId:      TEST_USER_ID,
-			Amount:       "0.023",
+			Amount:       "0.013",
 		},
 		Beneficiar: &api.BeneficiarData{
 			BeneficiarAddress: "",
 			BeneficiarId:      TEST_BENEFICIAR_ID,
-			Amount:            "0.023",
+			Amount:            "0.013",
 		},
 	}
 )
 
 func TestInitService(t *testing.T) {
-	svc := bitcoin.InitService()
+	svc := litecoin.InitService()
 	if svc == nil {
-		t.Fatalf("cannot init service. Got %v instead of &bitcoin.Service{}", svc)
+		t.Fatalf("cannot init service. Got %v instead of &litecoin.Service{}", svc)
 	}
 }
 
@@ -44,17 +44,17 @@ func TestCreatePermanentWallet(t *testing.T) {
 
 	wt := TEST_SVC.CreatePermanentWallet(TEST_USER_ID)
 	if wt == nil {
-		t.Fatalf("TestCreatePermanentWallet 1 expected &api.WalletItem, got: %v", wt)
+		t.Fatalf("TestCreatePermanentWallet 1 expected: &api.WalletItem, got: %v", wt)
 	}
 
 	wt = TEST_SVC.CreatePermanentWallet(TEST_USER_ID)
 	if wt != nil {
-		t.Fatalf("TestCreatePermanentWallet 2 expected nil, got: %v", wt)
+		t.Fatalf("TestCreatePermanentWallet 2 expected: nil, got: %v", wt)
 	}
 
 	wt2 := TEST_SVC.CreatePermanentWallet(TEST_BENEFICIAR_ID)
 	if wt2 == nil {
-		t.Fatalf("TestCreatePermanentWallet 1 expected &api.WalletItem, got: %v", wt2)
+		t.Fatalf("TestCreatePermanentWallet 1 expected: &api.WalletItem, got: %v", wt2)
 	}
 
 	TEST_PEYEE_ADDRESS = wt.Address
@@ -66,12 +66,12 @@ func TestCreateOneTimeAddress(t *testing.T) {
 
 	nilItem := TEST_SVC.CreateOneTimeddress(TEST_USER_ID)
 	if nilItem == nil {
-		t.Fatalf("TestCreateOneTimeAddress 1 expected &api.WalletItem, got: %v", nilItem)
+		t.Fatalf("TestCreateOneTimeAddress 1 expected: &api.WalletItem, got: %v", nilItem)
 	}
 
 	nilItem = TEST_SVC.CreateOneTimeddress(TEST_USER_ID)
 	if nilItem == nil {
-		t.Fatalf("TestCreateOneTimeAddress 2 expected nil, got: %v", nilItem)
+		t.Fatalf("TestCreateOneTimeAddress 2 expected: nil, got: %v", nilItem)
 	}
 
 }
@@ -85,7 +85,7 @@ func TestGetBalanceData(t *testing.T) {
 	balance := TEST_SVC.GetBalanceByAddress(TEST_ADDRESS)
 	result := balance.Cmp(zero)
 	if result == -1 {
-		t.Fatalf("TestGetBalanceData expected positive value != 0; got: %v", balance)
+		t.Fatalf("TestGetBalanceData expected: positive value != 0; got: %v", balance)
 	}
 	t.Logf("TestGetBalanceData result -> %v", balance)
 }
@@ -101,7 +101,3 @@ func TestSingleTransaction(t *testing.T) {
 
 	t.Logf("TestSingleTransaction transaction hash -> %v", hash)
 }
-
-// func TestMultTransaction(t *testing.T) {
-
-// }

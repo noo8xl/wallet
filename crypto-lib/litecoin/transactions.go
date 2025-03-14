@@ -1,4 +1,4 @@
-package solana
+package litecoin
 
 import pb "wallet/api"
 

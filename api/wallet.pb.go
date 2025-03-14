@@ -546,8 +546,8 @@ func (x *SendSingleTsxRequest) GetBeneficiar() *BeneficiarData {
 	return nil
 }
 
-// SendMultiplyTsxRequest -> send transaction to the multiply users
-type SendMultiplyTsxRequest struct {
+// SendMultipleTsxRequest -> send transaction to the multiply users
+type SendMultipleTsxRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	CoinName       string                 `protobuf:"bytes,1,opt,name=coin_name,json=coinName,proto3" json:"coin_name,omitempty"`
 	Payee          *PeyeeData             `protobuf:"bytes,2,opt,name=payee,proto3" json:"payee,omitempty"`
@@ -556,20 +556,20 @@ type SendMultiplyTsxRequest struct {
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *SendMultiplyTsxRequest) Reset() {
-	*x = SendMultiplyTsxRequest{}
+func (x *SendMultipleTsxRequest) Reset() {
+	*x = SendMultipleTsxRequest{}
 	mi := &file_api_wallet_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SendMultiplyTsxRequest) String() string {
+func (x *SendMultipleTsxRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SendMultiplyTsxRequest) ProtoMessage() {}
+func (*SendMultipleTsxRequest) ProtoMessage() {}
 
-func (x *SendMultiplyTsxRequest) ProtoReflect() protoreflect.Message {
+func (x *SendMultipleTsxRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_wallet_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -581,26 +581,26 @@ func (x *SendMultiplyTsxRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SendMultiplyTsxRequest.ProtoReflect.Descriptor instead.
-func (*SendMultiplyTsxRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use SendMultipleTsxRequest.ProtoReflect.Descriptor instead.
+func (*SendMultipleTsxRequest) Descriptor() ([]byte, []int) {
 	return file_api_wallet_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *SendMultiplyTsxRequest) GetCoinName() string {
+func (x *SendMultipleTsxRequest) GetCoinName() string {
 	if x != nil {
 		return x.CoinName
 	}
 	return ""
 }
 
-func (x *SendMultiplyTsxRequest) GetPayee() *PeyeeData {
+func (x *SendMultipleTsxRequest) GetPayee() *PeyeeData {
 	if x != nil {
 		return x.Payee
 	}
 	return nil
 }
 
-func (x *SendMultiplyTsxRequest) GetBeneficiarList() []*BeneficiarData {
+func (x *SendMultipleTsxRequest) GetBeneficiarList() []*BeneficiarData {
 	if x != nil {
 		return x.BeneficiarList
 	}
@@ -785,7 +785,7 @@ var file_api_wallet_proto_rawDesc = string([]byte{
 	0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x42, 0x65, 0x6e,
 	0x65, 0x66, 0x69, 0x63, 0x69, 0x61, 0x72, 0x44, 0x61, 0x74, 0x61, 0x52, 0x0a, 0x62, 0x65, 0x6e,
 	0x65, 0x66, 0x69, 0x63, 0x69, 0x61, 0x72, 0x22, 0x99, 0x01, 0x0a, 0x16, 0x53, 0x65, 0x6e, 0x64,
-	0x4d, 0x75, 0x6c, 0x74, 0x69, 0x70, 0x6c, 0x79, 0x54, 0x73, 0x78, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x4d, 0x75, 0x6c, 0x74, 0x69, 0x70, 0x6c, 0x65, 0x54, 0x73, 0x78, 0x52, 0x65, 0x71, 0x75, 0x65,
 	0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x63, 0x6f, 0x69, 0x6e, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x63, 0x6f, 0x69, 0x6e, 0x4e, 0x61, 0x6d, 0x65, 0x12,
 	0x24, 0x0a, 0x05, 0x70, 0x61, 0x79, 0x65, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e,
@@ -837,7 +837,7 @@ var file_api_wallet_proto_rawDesc = string([]byte{
 	0x14, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f,
 	0x6e, 0x48, 0x61, 0x73, 0x68, 0x22, 0x00, 0x12, 0x46, 0x0a, 0x0f, 0x53, 0x65, 0x6e, 0x64, 0x4d,
 	0x75, 0x6c, 0x74, 0x69, 0x70, 0x6c, 0x79, 0x54, 0x73, 0x78, 0x12, 0x1b, 0x2e, 0x61, 0x70, 0x69,
-	0x2e, 0x53, 0x65, 0x6e, 0x64, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x70, 0x6c, 0x79, 0x54, 0x73, 0x78,
+	0x2e, 0x53, 0x65, 0x6e, 0x64, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x70, 0x6c, 0x65, 0x54, 0x73, 0x78,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x54, 0x72,
 	0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x48, 0x61, 0x73, 0x68, 0x22, 0x00, 0x42,
 	0x1e, 0x5a, 0x1c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6e, 0x6f,
@@ -869,7 +869,7 @@ var file_api_wallet_proto_goTypes = []any{
 	(*GetCustomerBalanceRequest)(nil), // 7: api.GetCustomerBalanceRequest
 	(*GetCoinBalanceRequest)(nil),     // 8: api.GetCoinBalanceRequest
 	(*SendSingleTsxRequest)(nil),      // 9: api.SendSingleTsxRequest
-	(*SendMultiplyTsxRequest)(nil),    // 10: api.SendMultiplyTsxRequest
+	(*SendMultipleTsxRequest)(nil),    // 10: api.SendMultipleTsxRequest
 	(*BeneficiarData)(nil),            // 11: api.BeneficiarData
 	(*PeyeeData)(nil),                 // 12: api.PeyeeData
 }
@@ -877,15 +877,15 @@ var file_api_wallet_proto_depIdxs = []int32{
 	0,  // 0: api.WalletList.wallet:type_name -> api.WalletItem
 	12, // 1: api.SendSingleTsxRequest.payee:type_name -> api.PeyeeData
 	11, // 2: api.SendSingleTsxRequest.beneficiar:type_name -> api.BeneficiarData
-	12, // 3: api.SendMultiplyTsxRequest.payee:type_name -> api.PeyeeData
-	11, // 4: api.SendMultiplyTsxRequest.beneficiar_list:type_name -> api.BeneficiarData
+	12, // 3: api.SendMultipleTsxRequest.payee:type_name -> api.PeyeeData
+	11, // 4: api.SendMultipleTsxRequest.beneficiar_list:type_name -> api.BeneficiarData
 	5,  // 5: api.WalletService.CreateWallet:input_type -> api.CreateWalletRequest
 	6,  // 6: api.WalletService.CreatePermanentAddress:input_type -> api.CreateAddressRequest
 	6,  // 7: api.WalletService.CreateOneTimeAddress:input_type -> api.CreateAddressRequest
 	8,  // 8: api.WalletService.GetCoinBalance:input_type -> api.GetCoinBalanceRequest
 	7,  // 9: api.WalletService.GetCustomerBalance:input_type -> api.GetCustomerBalanceRequest
 	9,  // 10: api.WalletService.SendSingleTsx:input_type -> api.SendSingleTsxRequest
-	10, // 11: api.WalletService.SendMultiplyTsx:input_type -> api.SendMultiplyTsxRequest
+	10, // 11: api.WalletService.SendMultiplyTsx:input_type -> api.SendMultipleTsxRequest
 	4,  // 12: api.WalletService.CreateWallet:output_type -> api.WalletList
 	0,  // 13: api.WalletService.CreatePermanentAddress:output_type -> api.WalletItem
 	0,  // 14: api.WalletService.CreateOneTimeAddress:output_type -> api.WalletItem

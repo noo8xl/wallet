@@ -54,6 +54,13 @@ var (
 		UpdatedAt:  time.Now().UnixMilli(),
 		CustomerId: 90990,
 	}
+
+	TEST_TON_ONE_TIME_ADDRESS = &models.TonOneTimeWallet{
+		Address:    "test btc address here ",
+		AddrType:   123,
+		PrivateKey: []byte("Some private value"),
+		BitsLen:    932,
+	}
 )
 
 func TestConnection(t *testing.T) {

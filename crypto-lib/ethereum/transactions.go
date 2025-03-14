@@ -58,3 +58,7 @@ func (s *Service) SendSingleTransaction(dto *pb.SendSingleTsxRequest) string {
 	fmt.Printf("%+v\n", skel)
 	return skel.Trans.Hash
 }
+
+func (s *Service) SendMultipleTransactions(dto *pb.SendMultipleTsxRequest) string {
+	return "hash here"
+}

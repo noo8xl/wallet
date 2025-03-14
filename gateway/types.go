@@ -10,5 +10,5 @@ type WalletService interface {
 	CreateOneTimeAddress(context.Context, *pb.CreateAddressRequest) error
 	GetCoinBalance(context.Context, *pb.GetCoinBalanceRequest) error
 	SendSingleTransaction(context.Context, *pb.SendSingleTsxRequest) error
-	SendMultTransaction(context.Context, *pb.SendMultiplyTsxRequest) error
+	SendMultTransaction(context.Context, *pb.SendMultipleTsxRequest) error
 }

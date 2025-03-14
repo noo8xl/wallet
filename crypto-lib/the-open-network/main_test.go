@@ -10,7 +10,7 @@ import (
 // -> if ur tests got an unexpected results - run:
 // ../../database/main_test.go -> TestCleanUp to clean all data after previous testing
 var (
-	TEST_SVC                 = theopennetwork.InitTonService()
+	TEST_SVC                 = theopennetwork.InitService()
 	TEST_ADDRESS             = "UQAsXIINx-qUfrzH3nJhOvm4Og-iCLIvnnL2sumivPIF4n1u" // random address from tonscan
 	TEST_USER_ID       int64 = 90990                                              // also used as a peyee
 	TEST_BENEFICIAR_ID int64 = 8831721
@@ -34,7 +34,7 @@ var (
 )
 
 func TestInitService(t *testing.T) {
-	svc := theopennetwork.InitTonService()
+	svc := theopennetwork.InitService()
 	if svc == nil {
 		t.Fatalf("cannot init service. Got %v instead of &theopennetwork.Service{}", svc)
 	}

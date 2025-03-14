@@ -39,7 +39,7 @@ service WalletService {
   rpc GetCustomerBalance(GetCustomerBalanceRequest) returns (CustomerBalance) {};
 
   rpc SendSingleTsx(SendSingleTsxRequest) returns (TransactionHash) {};
-  rpc SendMultiplyTsx(SendMultiplyTsxRequest) returns (TransactionHash) {};
+  rpc SendMultiplyTsx(SendMultipleTsxRequest) returns (TransactionHash) {};
 }
 
 
@@ -73,8 +73,8 @@ message SendSingleTsxRequest {
   BeneficiarData beneficiar = 3;
 }
 
-// SendMultiplyTsxRequest -> send transaction to the multiply users
-message SendMultiplyTsxRequest {
+// SendMultipleTsxRequest -> send transaction to the multiply users
+message SendMultipleTsxRequest {
   string coin_name = 1;
   PeyeeData payee = 2;
   repeated BeneficiarData beneficiar_list = 3;

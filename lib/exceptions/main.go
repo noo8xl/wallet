@@ -25,13 +25,13 @@ func HandleAnException(e string) {
 			err = os.Mkdir(dirName, 0700)
 			if err != nil {
 				log.Println("cannot create a dir.")
-				os.Exit(1)
+				// os.Exit(1)
 			}
 
 			file, err = os.Create(filePath)
 			if err != nil {
 				log.Println("cannot create a file.")
-				os.Exit(1)
+				// os.Exit(1)
 			}
 		}
 	}
@@ -39,20 +39,20 @@ func HandleAnException(e string) {
 	file, err = os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		log.Println("Cannot open a file.")
-		os.Exit(1)
+		// os.Exit(1)
 	}
 
 	// close a file and terminate the process
 	defer func() {
 		file.Close()
-		os.Exit(1)
+		// os.Exit(1)
 	}()
 
 	str := time.Now().Format(time.RFC850) + " :> " + e + " \n"
 	_, err = file.WriteString(str)
 	if err != nil {
 		log.Println("Cannot write to the file.")
-		os.Exit(1)
+		// os.Exit(1)
 	}
 }
 

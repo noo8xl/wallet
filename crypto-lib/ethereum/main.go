@@ -24,7 +24,7 @@ type Service struct {
 	store *cache.Store
 }
 
-func InitEthereumService() *Service {
+func InitService() *Service {
 	bc := initBlockchain()
 	db := database.InitDbService()
 	s := cache.InitNewStore()

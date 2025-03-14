@@ -1,0 +1,12 @@
+
+
+-> error handling:
+  - response errors *
+  - grpc/http error* 
+
+-> tests: 
+  - update tests for the database and crypto-lib
+
+-> impl send tsx*
+
+-> 

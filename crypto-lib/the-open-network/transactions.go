@@ -22,3 +22,7 @@ func (s *Service) SendSingleTransaction(dto *pb.SendSingleTsxRequest) string {
 
 	return "ton tsx hash"
 }
+
+func (s *Service) SendMultipleTransactions(dto *pb.SendMultipleTsxRequest) string {
+	return "hash here"
+}

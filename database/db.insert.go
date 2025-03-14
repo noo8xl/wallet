@@ -164,6 +164,84 @@ func (s *DatabaseService) InsertTrxWalletToOneTimeAddresses(dto *models.TrxWalle
 	return res.Err()
 }
 
+func (s *DatabaseService) InsertLtcWalletToPermanent(dto *models.LtcWallet) error {
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	// * pubKeys are temporary excluded  *
+	sql := strings.Join([]string{
+		"INSERT INTO ltcWallets ",
+		"(address, privateKey, publicKey, wif, scriptType, originalAddress, oapAddress, userId) ",
+		"VALUES (?,?,?,?,?,?,?,?)",
+	}, "")
+	res := s.db.QueryRow(
+		sql, dto.Address, dto.PrivateKey,
+		dto.PublicKey, dto.Wif, dto.ScriptType,
+		dto.OriginalAddress, dto.OAPAddress, dto.CustomerId,
+	)
+	// fmt.Println("sql result is -> ", &res)
+
+	return res.Err()
+}
+
+func (s *DatabaseService) InsertLtcWalletToOneTimeAddresses(dto *models.LtcWallet) error {
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	// * pubKeys are temporary excluded  *
+	sql := strings.Join([]string{
+		"INSERT INTO oneTimeLtcWallets ",
+		"(address, privateKey, publicKey, wif, userId) ",
+		"VALUES (?,?,?,?,?)",
+	}, "")
+	res := s.db.QueryRow(
+		sql, dto.Address, dto.PrivateKey,
+		dto.PublicKey, dto.Wif, dto.CustomerId,
+	)
+	// fmt.Println("sql result is -> ", &res)
+
+	return res.Err()
+}
+
+func (s *DatabaseService) InsertDogeWalletToPermanent(dto *models.Dogewallet) error {
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	// * pubKeys are temporary excluded  *
+	sql := strings.Join([]string{
+		"INSERT INTO dogeWallets ",
+		"(address, privateKey, publicKey, wif, scriptType, originalAddress, oapAddress, userId) ",
+		"VALUES (?,?,?,?,?,?,?,?)",
+	}, "")
+	res := s.db.QueryRow(
+		sql, dto.Address, dto.PrivateKey,
+		dto.PublicKey, dto.Wif, dto.ScriptType,
+		dto.OriginalAddress, dto.OAPAddress, dto.CustomerId,
+	)
+	// fmt.Println("sql result is -> ", &res)
+
+	return res.Err()
+}
+
+func (s *DatabaseService) InsertDogeWalletToOneTimeAddresses(dto *models.Dogewallet) error {
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	// * pubKeys are temporary excluded  *
+	sql := strings.Join([]string{
+		"INSERT INTO oneTimeDogeWallets ",
+		"(address, privateKey, publicKey, wif, userId) ",
+		"VALUES (?,?,?,?,?)",
+	}, "")
+	res := s.db.QueryRow(
+		sql, dto.Address, dto.PrivateKey,
+		dto.PublicKey, dto.Wif, dto.CustomerId,
+	)
+	// fmt.Println("sql result is -> ", &res)
+
+	return res.Err()
+}
+
 // InsertTrxWallet -> insert user wallet data to db
 // func InsertTrxWallet(dto models.TonWallet) error {
 

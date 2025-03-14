@@ -64,3 +64,7 @@ func (s *Service) SendSingleTransaction(dto *pb.SendSingleTsxRequest) string {
 	// save a tsx details to db
 	return "trx tsx hash"
 }
+
+func (s *Service) SendMultipleTransactions(dto *pb.SendMultipleTsxRequest) string {
+	return "hash here"
+}

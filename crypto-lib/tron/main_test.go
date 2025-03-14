@@ -10,7 +10,7 @@ import (
 // -> if ur tests got an unexpected results - run:
 // ../../database/main_test.go -> TestCleanUp to clean all data after previous testing
 var (
-	TEST_SVC                 = tron.InitTonService()
+	TEST_SVC                 = tron.InitService()
 	TEST_ADDRESS             = "TMBmZ2a1Aj56hYAvrHAbpdJ4DoRitdMJA6" // random address from tronscan
 	TEST_USER_ID       int64 = 90990                                // also used as a peyee
 	TEST_BENEFICIAR_ID int64 = 8831721
@@ -34,7 +34,7 @@ var (
 )
 
 func TestInitService(t *testing.T) {
-	svc := tron.InitTonService()
+	svc := tron.InitService()
 	if svc == nil {
 		t.Fatalf("cannot init service. Got %v instead of &tron.Service{}", svc)
 	}

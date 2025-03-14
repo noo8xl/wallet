@@ -29,7 +29,7 @@ type Service struct {
 	store  *cache.Store
 }
 
-func InitTonService() *Service {
+func InitService() *Service {
 	client := initTonAPIConnection()
 	db := database.InitDbService()
 	s := cache.InitNewStore()

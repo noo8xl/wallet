@@ -1,5 +1,4 @@
-// Package bitcoinwallet -> is all of btc network interacting
-package bitcoin
+package dogecoin
 
 import (
 	"fmt"
@@ -11,8 +10,6 @@ import (
 	"wallet/lib/exceptions"
 	"wallet/lib/helpers"
 	"wallet/lib/models"
-
-	// "wallet/lib/models"
 
 	pb "wallet/api"
 
@@ -39,16 +36,18 @@ func InitService() *Service {
 // CreateWallet is in charge of creating a new root wallet
 func (s *Service) CreatePermanentWallet(userId int64) *pb.WalletItem {
 
-	existedAddress, err := s.db.IsWalletExists(userId, "btc", 0)
+	existedAddress, err := s.db.IsWalletExists(userId, "doge", 0)
 	if err != nil {
 		exceptions.HandleAnHttpExceprion()
 		return nil
 	} else {
-		if !existedAddress {
-			return s.generateAddress(userId, 0)
+		if existedAddress {
+			exceptions.HandleAnHttpExceprion()
+			return nil
 		}
 	}
-	return nil
+
+	return s.generateAddress(userId, 0)
 
 }
 
@@ -56,28 +55,23 @@ func (s *Service) CreateOneTimeddress(userId int64) *pb.WalletItem {
 	return s.generateAddress(userId, 1)
 }
 
-// GetBitcoinAddressBalance -> get balance by address
 func (s *Service) GetBalanceByAddress(address string) *big.Float {
 
 	result, err := s.store.GetAKey(address)
 	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
 		return val
 	}
-	// log.Println("adr -> ", address)
+
 	// ###################################################
 	// ######## DOESN"T WORK IN THE TEST-NET! ############
 	// ###################################################
-
-	// balance value from API will be receive in satoshi value
-	// to calculate it in btc value -> should multiply on 0.00_000_001
-	// https://buybitcoinworldwide.com/satoshi-usd/
 
 	const satoshiPerByte float64 = 0.00000001
 	var currentBalance = big.NewFloat(0)
 
 	addressData, err := s.bc.GetAddrBal(address, nil)
 	if err != nil {
-		exceptions.HandleAnException("<btc GetAddrBal> got an error: " + err.Error())
+		exceptions.HandleAnException("<doge GetAddrBal> got an error: " + err.Error())
 	}
 
 	// fmt.Println("addressData -> ")
@@ -103,7 +97,7 @@ func (s *Service) generateAddress(userId int64, opt byte) *pb.WalletItem {
 	addressKeys, err := s.bc.GenAddrKeychain()
 
 	if err != nil {
-		exceptions.HandleAnException("<btc generateAddress> got an err: " + err.Error())
+		exceptions.HandleAnException("<dogecoin generateAddress> got an err: " + err.Error())
 	}
 
 	key := config.GetAnEncryptionKey()
@@ -117,7 +111,7 @@ func (s *Service) generateAddress(userId int64, opt byte) *pb.WalletItem {
 		exceptions.HandleAnException("public key encoding error")
 	}
 
-	wt := &models.BtcWallet{
+	wt := &models.Dogewallet{
 		Address:         addressKeys.Address,
 		PrivateKey:      encPrivate,
 		PublicKey:       encPublic,
@@ -134,35 +128,35 @@ func (s *Service) generateAddress(userId int64, opt byte) *pb.WalletItem {
 	// -> save wallet to db!
 	switch opt {
 	case 0:
-		err := s.db.InsertBtcWalletToPermanent(wt)
+		err := s.db.InsertDogeWalletToPermanent(wt)
 		if err != nil {
-			exceptions.HandleAnException("<InsertBtcWalletToPermanent> got an error: " + err.Error())
+			exceptions.HandleAnException("<InsertDogeWalletToPermanent> got an error: " + err.Error())
 		}
 	case 1:
-		err := s.db.InsertBtcWalletToOneTimeAddresses(wt)
+		err := s.db.InsertDogeWalletToOneTimeAddresses(wt)
 		if err != nil {
-			exceptions.HandleAnException("<InsertBtcWalletToOneTimeAddresses> got an error: " + err.Error())
+			exceptions.HandleAnException("<InsertDogeWalletToOneTimeAddresses> got an error: " + err.Error())
 		}
 	default:
 		exceptions.HandleAnException(fmt.Sprintf("Unknown opt value %d", opt))
 	}
 
-	return &pb.WalletItem{CoinName: "btc", Address: wt.Address}
+	return &pb.WalletItem{CoinName: "doge", Address: ""}
 }
 
 func initBlockchain() *gobcy.API {
 
 	bc := new(gobcy.API)
-	apiToken := config.GetBitcoinAPIKey()
+	apiToken := config.GetDogecoinAPIKey()
 
 	if apiToken == "" {
-		exceptions.HandleAnException("Init <btc> blockchain got an error. Empty API token.")
+		exceptions.HandleAnException("Init <doge> blockchain got an error. Empty API token.")
 	} else {
 
 		bc.Token = apiToken
-		bc.Coin = "btc"    // options: "btc","bcy","ltc","doge","eth"
-		bc.Chain = "test3" // depend on coin: "main","test3","test"\
-		// bc.Chain = "main"
+		bc.Coin = "doge" // options: "btc","bcy","ltc","doge","eth"
+		// bc.Chain = "test3" // depends on coin: "main","test3","test"\
+		bc.Chain = "main"
 	}
 
 	// log.Println("bc is -> ", bc)

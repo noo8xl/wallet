@@ -2,10 +2,10 @@ package solana
 
 import (
 	"fmt"
+	"math/big"
 	pb "wallet/api"
 	"wallet/database"
 	"wallet/lib/cache"
-	"wallet/lib/exceptions"
 )
 
 type Service struct {
@@ -26,11 +26,13 @@ func InitService() *Service {
 }
 
 func (s *Service) CreatePermanentWallet(userId int64) *pb.WalletItem {
-	existedAddress := s.db.IsWalletExists(userId, "sol")
-	if !existedAddress {
-		return s.generateAddress(userId, 0)
+	existedAddress, err := s.db.IsWalletExists(userId, "sol", 0)
+	if err == nil {
+		if !existedAddress {
+			return s.generateAddress(userId, 0)
+		}
 	}
-	exceptions.HandleAnHttpExceprion()
+
 	return nil
 }
 
@@ -38,8 +40,11 @@ func (s *Service) CreateOneTimeddress(userId int64) *pb.WalletItem {
 	return s.generateAddress(userId, 1)
 }
 
-func (s *Service) GetBalanceByAddress(address string) string {
-	return "balance will be here"
+func (s *Service) GetBalanceByAddress(address string) (*big.Float, error) {
+
+	bal := big.NewFloat(0)
+
+	return bal, nil
 }
 
 //

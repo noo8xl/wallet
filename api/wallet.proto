@@ -69,15 +69,17 @@ message GetCoinBalanceRequest {
 // SendSingleTsxRequest -> send transaction direct to the certain users
 message SendSingleTsxRequest {
   string coin_name = 1;
-  PeyeeData payee = 2;
-  BeneficiarData beneficiar = 3;
+  int32 walletType = 2;
+  PeyeeData payee = 3;
+  BeneficiarData beneficiar = 4;
 }
 
 // SendMultipleTsxRequest -> send transaction to the multiply users
 message SendMultipleTsxRequest {
   string coin_name = 1;
-  PeyeeData payee = 2;
-  repeated BeneficiarData beneficiar_list = 3;
+  int32 walletType = 2;
+  PeyeeData payee = 3;
+  repeated BeneficiarData beneficiar_list = 4;
 }
 
 message BeneficiarData {

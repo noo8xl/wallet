@@ -35,12 +35,13 @@ func InitService() *Service {
 }
 
 func (s *Service) CreatePermanentWallet(userId int64) *pb.WalletItem {
-
-	existedAddress := s.db.IsWalletExists(userId, "trx")
-	if !existedAddress {
-		return s.generateAddress(userId, 0)
+	existedAddress, err := s.db.IsWalletExists(userId, "trx", 0)
+	if err == nil {
+		if !existedAddress {
+			return s.generateAddress(userId, 0)
+		}
 	}
-	exceptions.HandleAnHttpExceprion()
+
 	return nil
 }
 
@@ -49,11 +50,14 @@ func (s *Service) CreateOneTimeddress(userId int64) *pb.WalletItem {
 }
 
 // GetTrxBalance -> get balance by wallet address
-func (s *Service) GetBalanceByAddress(addr string) *big.Float {
+func (s *Service) GetBalanceByAddress(addr string) (*big.Float, error) {
 
 	result, err := s.store.GetAKey(addr)
+	if err != nil {
+		return nil, err
+	}
 	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
-		return val
+		return val, nil
 	}
 
 	var currentBalance *big.Float
@@ -79,8 +83,7 @@ func (s *Service) GetBalanceByAddress(addr string) *big.Float {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		exceptions.HandleAnException("<trx create wallet> got an err: " + err.Error())
-
+		return nil, err
 	}
 
 	defer res.Body.Close()
@@ -90,7 +93,7 @@ func (s *Service) GetBalanceByAddress(addr string) *big.Float {
 
 	// return response.balance / 1000000 // dividing on 1_000_000
 	s.store.SetAKey(addr, string(body))
-	return currentBalance
+	return currentBalance, nil
 
 }
 

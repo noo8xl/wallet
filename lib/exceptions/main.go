@@ -58,7 +58,7 @@ func HandleAnException(e string) {
 
 func HandleAnHttpExceprion() {
 	status, message := definteHttpError()
-	log.Printf("http exception: {message: %s, status %d} \n", message, status)
+	log.Printf("http exception: {\nmessage: %s, \nstatus %d} \n", message, status)
 }
 
 func definteHttpError() (int, string) {

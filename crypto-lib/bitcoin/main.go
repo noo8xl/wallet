@@ -38,18 +38,14 @@ func InitService() *Service {
 
 // CreateWallet is in charge of creating a new root wallet
 func (s *Service) CreatePermanentWallet(userId int64) *pb.WalletItem {
-
 	existedAddress, err := s.db.IsWalletExists(userId, "btc", 0)
-	if err != nil {
-		exceptions.HandleAnHttpExceprion()
-		return nil
-	} else {
+	if err == nil {
 		if !existedAddress {
 			return s.generateAddress(userId, 0)
 		}
 	}
-	return nil
 
+	return nil
 }
 
 func (s *Service) CreateOneTimeddress(userId int64) *pb.WalletItem {
@@ -57,11 +53,14 @@ func (s *Service) CreateOneTimeddress(userId int64) *pb.WalletItem {
 }
 
 // GetBitcoinAddressBalance -> get balance by address
-func (s *Service) GetBalanceByAddress(address string) *big.Float {
+func (s *Service) GetBalanceByAddress(address string) (*big.Float, error) {
 
 	result, err := s.store.GetAKey(address)
+	if err != nil {
+		return nil, err
+	}
 	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
-		return val
+		return val, nil
 	}
 	// log.Println("adr -> ", address)
 	// ###################################################
@@ -90,7 +89,7 @@ func (s *Service) GetBalanceByAddress(address string) *big.Float {
 
 	bal := new(big.Float).Mul(currentBalance, big.NewFloat(satoshiPerByte))
 	s.store.SetAKey(address, bal.String())
-	return bal
+	return bal, nil
 }
 
 // ===========================================================================================//

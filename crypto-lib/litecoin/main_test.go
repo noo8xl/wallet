@@ -82,10 +82,10 @@ func TestGetBalanceData(t *testing.T) {
 	// https://www.blockchain.com/explorer/addresses/btc/bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
 
 	zero := big.NewFloat(0)
-	balance := TEST_SVC.GetBalanceByAddress(TEST_ADDRESS)
+	balance, err := TEST_SVC.GetBalanceByAddress(TEST_ADDRESS)
 	result := balance.Cmp(zero)
-	if result == -1 {
-		t.Fatalf("TestGetBalanceData expected: positive value != 0; got: %v", balance)
+	if result == -1 || err != nil {
+		t.Fatalf("TestGetBalanceData expected positive value != 0; got: %v", err)
 	}
 	t.Logf("TestGetBalanceData result -> %v", balance)
 }
@@ -94,10 +94,14 @@ func TestSingleTransaction(t *testing.T) {
 	TEST_SINGLE_TSX_DTO.Payee.PeyeeAddress = TEST_PEYEE_ADDRESS
 	TEST_SINGLE_TSX_DTO.Beneficiar.BeneficiarAddress = TEST_BENEFICIAR_ADDRESS
 
-	hash := TEST_SVC.SendSingleTransaction(TEST_SINGLE_TSX_DTO)
-	if hash == "" {
-		t.Fatalf("TestSingleTransaction expected non-empty string; got: %v", hash)
+	hash, err := TEST_SVC.DefineaTypeAndSendSingleTransaction(TEST_SINGLE_TSX_DTO)
+	if hash == "" || err != nil {
+		t.Fatalf("TestSingleTransaction expected non-empty string; got: %v", err)
 	}
 
 	t.Logf("TestSingleTransaction transaction hash -> %v", hash)
 }
+
+// func TestMultTransaction(t *testing.T) {
+
+// }

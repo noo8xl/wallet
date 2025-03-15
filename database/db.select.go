@@ -4,184 +4,47 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"wallet/config"
+	"wallet/lib/helpers"
 )
 
-// SelectBtcPrivate -> get private key by address and userId
-func (s *DatabaseService) SelectBtcPrivate(address string, opts byte) (string, error) {
+func (s *DatabaseService) DefineaBlockchainAndGetPrivateKey(address string, bc string, opts byte) (string, error) {
+	var err error
+	var privateKey string
+	var encryptedPk string
 
-	var tableName string
-	var pKey string
-	s.db = dbConnect()
-	defer s.db.Close()
+	key := config.GetAnEncryptionKey()
 
-	switch opts {
-	case 0:
-		tableName = "btcWallets"
-	case 1:
-		tableName = "oneTimeBtcWallets"
+	switch bc {
+	case "btc":
+		encryptedPk, err = s.selectBtcPrivate(address, opts)
+	case "eth":
+		encryptedPk, err = s.selectEthPrivate(address, opts)
+	case "ltc":
+		encryptedPk, err = s.selectLtcPrivate(address, opts)
+	case "doge":
+		encryptedPk, err = s.selectDogePrivate(address, opts)
+	case "trx":
+		encryptedPk, err = s.selectTrxPrivate(address, opts)
+	case "ton":
+		encryptedPk, err = s.selectTonPrivate(address, opts)
+	case "sol":
+		encryptedPk, err = s.selectSolPrivate(address, opts)
 	default:
-		return "", errors.New("got a wrong option value")
+		return "", errors.New("got a wrong coinname")
 	}
 
-	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")	err := s.db.QueryRow(sql).Scan(&pKey)
 	if err != nil {
 		return "", err
 	}
 
-	return pKey, nil
-}
-
-// SelectBtcPrivate -> get private key by address and userId
-func (s *DatabaseService) SelectEthPrivate(address string, opts byte) (string, error) {
-
-	var tableName string
-	var pKey string
-	s.db = dbConnect()
-	defer s.db.Close()
-
-	switch opts {
-	case 0:
-		tableName = "ethWallets"
-	case 1:
-		tableName = "oneTimeEthWallets"
-	default:
-		return "", errors.New("got a wrong option value")
-	}
-
-	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
-	err := s.db.QueryRow(sql).Scan(&pKey)
+	privateKey, err = helpers.DecryptKey(key, encryptedPk)
 	if err != nil {
 		return "", err
 	}
 
-	return pKey, nil
-}
+	return privateKey, nil
 
-// SelectTrxPrivate -> get private key by address and userId
-func (s *DatabaseService) SelectTrxPrivate(address string, opts byte) (string, error) {
-
-	var tableName string
-	var pKey string
-	s.db = dbConnect()
-	defer s.db.Close()
-
-	switch opts {
-	case 0:
-		tableName = "trxWallets"
-	case 1:
-		tableName = "oneTimeTrxWallets"
-	default:
-		return "", errors.New("got a wrong option value")
-	}
-
-	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
-	err := s.db.QueryRow(sql).Scan(&pKey)
-	if err != nil {
-		return "", err
-	}
-
-	return pKey, nil
-}
-
-// SelectTonPrivate -> get private key by address and userId
-func (s *DatabaseService) SelectTonPrivate(address string, opts byte) ([]byte, error) {
-
-	var tableName string
-	var pKey []byte
-	s.db = dbConnect()
-	defer s.db.Close()
-
-	switch opts {
-	case 0:
-		tableName = "tonWallets"
-	case 1:
-		tableName = "oneTimeTonWallets"
-	default:
-		return nil, errors.New("got a wrong option value")
-	}
-
-	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
-	err := s.db.QueryRow(sql).Scan(&pKey)
-	if err != nil {
-		return nil, err
-	}
-
-	return pKey, nil
-}
-
-func (s *DatabaseService) SelectLtcPrivate(address string, opts byte) (string, error) {
-
-	var pKey string
-	var tableName string
-	s.db = dbConnect()
-	defer s.db.Close()
-
-	switch opts {
-	case 0:
-		tableName = "ltcWallets"
-	case 1:
-		tableName = "oneTimeLtcWallets"
-	default:
-		return "", errors.New("got a wrong option value")
-	}
-
-	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
-	err := s.db.QueryRow(sql).Scan(&pKey)
-	if err != nil {
-		return "", err
-	}
-
-	return pKey, nil
-}
-
-func (s *DatabaseService) SelectDogePrivate(address string, opts byte) (string, error) {
-
-	var tableName string
-	var pKey string
-	s.db = dbConnect()
-	defer s.db.Close()
-
-	switch opts {
-	case 0:
-		tableName = "dogeWallets"
-	case 1:
-		tableName = "oneTimeDogeWallets"
-	default:
-		return "", errors.New("got a wrong option value")
-	}
-
-	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
-	err := s.db.QueryRow(sql).Scan(&pKey)
-	if err != nil {
-		return "", err
-	}
-
-	return pKey, nil
-}
-
-func (s *DatabaseService) SelectSolPrivate(address string, opts byte) (string, error) {
-
-	var tableName string
-	var pKey string
-	s.db = dbConnect()
-	defer s.db.Close()
-
-	switch opts {
-	case 0:
-		tableName = "solWallets"
-	case 1:
-		tableName = "oneTimeSolWallets"
-	default:
-		return "", errors.New("got a wrong option value")
-	}
-
-	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
-	err := s.db.QueryRow(sql).Scan(&pKey)
-	if err != nil {
-		return "", err
-	}
-
-	return pKey, nil
 }
 
 // IsWalletExists -> check is wallet already exists for current user
@@ -220,6 +83,189 @@ func (s *DatabaseService) IsWalletExists(userId int64, bc string, opts byte) (bo
 	}
 
 	return true, nil
+}
+
+// ######################################################################################################
+// ######################################################################################################
+// ######################################################################################################
+
+// SelectBtcPrivate -> get private key by address and userId
+func (s *DatabaseService) selectBtcPrivate(address string, opts byte) (string, error) {
+
+	var tableName string
+	var pKey string
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	switch opts {
+	case 0:
+		tableName = "btcWallets"
+	case 1:
+		tableName = "oneTimeBtcWallets"
+	default:
+		return "", errors.New("got a wrong option value")
+	}
+
+	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
+	err := s.db.QueryRow(sql).Scan(&pKey)
+	if err != nil {
+		return "", err
+	}
+
+	return pKey, nil
+}
+
+// SelectBtcPrivate -> get private key by address and userId
+func (s *DatabaseService) selectEthPrivate(address string, opts byte) (string, error) {
+
+	var tableName string
+	var pKey string
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	switch opts {
+	case 0:
+		tableName = "ethWallets"
+	case 1:
+		tableName = "oneTimeEthWallets"
+	default:
+		return "", errors.New("got a wrong option value")
+	}
+
+	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
+	err := s.db.QueryRow(sql).Scan(&pKey)
+	if err != nil {
+		return "", err
+	}
+
+	return pKey, nil
+}
+
+// SelectTrxPrivate -> get private key by address and userId
+func (s *DatabaseService) selectTrxPrivate(address string, opts byte) (string, error) {
+
+	var tableName string
+	var pKey string
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	switch opts {
+	case 0:
+		tableName = "trxWallets"
+	case 1:
+		tableName = "oneTimeTrxWallets"
+	default:
+		return "", errors.New("got a wrong option value")
+	}
+
+	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
+	err := s.db.QueryRow(sql).Scan(&pKey)
+	if err != nil {
+		return "", err
+	}
+
+	return pKey, nil
+}
+
+// SelectTonPrivate -> get private key by address and userId
+func (s *DatabaseService) selectTonPrivate(address string, opts byte) (string, error) {
+
+	var tableName string
+	var pKey []byte
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	switch opts {
+	case 0:
+		tableName = "tonWallets"
+	case 1:
+		tableName = "oneTimeTonWallets"
+	default:
+		return "", errors.New("got a wrong option value")
+	}
+
+	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
+	err := s.db.QueryRow(sql).Scan(&pKey)
+	if err != nil {
+		return "", err
+	}
+
+	return string(pKey), nil
+}
+
+func (s *DatabaseService) selectLtcPrivate(address string, opts byte) (string, error) {
+
+	var pKey string
+	var tableName string
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	switch opts {
+	case 0:
+		tableName = "ltcWallets"
+	case 1:
+		tableName = "oneTimeLtcWallets"
+	default:
+		return "", errors.New("got a wrong option value")
+	}
+
+	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
+	err := s.db.QueryRow(sql).Scan(&pKey)
+	if err != nil {
+		return "", err
+	}
+
+	return pKey, nil
+}
+
+func (s *DatabaseService) selectDogePrivate(address string, opts byte) (string, error) {
+
+	var tableName string
+	var pKey string
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	switch opts {
+	case 0:
+		tableName = "dogeWallets"
+	case 1:
+		tableName = "oneTimeDogeWallets"
+	default:
+		return "", errors.New("got a wrong option value")
+	}
+
+	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
+	err := s.db.QueryRow(sql).Scan(&pKey)
+	if err != nil {
+		return "", err
+	}
+
+	return pKey, nil
+}
+
+func (s *DatabaseService) selectSolPrivate(address string, opts byte) (string, error) {
+
+	var tableName string
+	var pKey string
+	s.db = dbConnect()
+	defer s.db.Close()
+
+	switch opts {
+	case 0:
+		tableName = "solWallets"
+	case 1:
+		tableName = "oneTimeSolWallets"
+	default:
+		return "", errors.New("got a wrong option value")
+	}
+
+	sql := strings.Join([]string{"SELECT privateKey FROM ", tableName, " WHERE address=", "\"", address, "\""}, "")
+	err := s.db.QueryRow(sql).Scan(&pKey)
+	if err != nil {
+		return "", err
+	}
+
+	return pKey, nil
 }
 
 func (s *DatabaseService) defineAndGetPermanentTableNameByBlockchainShortName(bc string) (string, error) {

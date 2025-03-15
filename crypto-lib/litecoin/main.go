@@ -35,26 +35,29 @@ func InitService() *Service {
 
 // CreateWallet is in charge of creating a new root wallet
 func (s *Service) CreatePermanentWallet(userId int64) *pb.WalletItem {
-
-	existedAddress := s.db.IsWalletExists(userId, "ltc")
-	if !existedAddress {
-		return s.generateAddress(userId, 0)
+	existedAddress, err := s.db.IsWalletExists(userId, "ltc", 0)
+	if err == nil {
+		if !existedAddress {
+			return s.generateAddress(userId, 0)
+		}
 	}
 
-	exceptions.HandleAnHttpExceprion()
 	return nil
-
 }
 
 func (s *Service) CreateOneTimeddress(userId int64) *pb.WalletItem {
 	return s.generateAddress(userId, 1)
 }
 
-func (s *Service) GetBalanceByAddress(address string) *big.Float {
+func (s *Service) GetBalanceByAddress(address string) (*big.Float, error) {
 
 	result, err := s.store.GetAKey(address)
+	if err != nil {
+		return nil, err
+	}
+
 	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
-		return val
+		return val, nil
 	}
 
 	// ###################################################
@@ -66,7 +69,7 @@ func (s *Service) GetBalanceByAddress(address string) *big.Float {
 
 	addressData, err := s.bc.GetAddrBal(address, nil)
 	if err != nil {
-		exceptions.HandleAnException("<ltc GetAddrBal> got an error: " + err.Error())
+		return nil, err
 	}
 
 	currentBalance = new(big.Float)
@@ -75,7 +78,7 @@ func (s *Service) GetBalanceByAddress(address string) *big.Float {
 
 	bal := new(big.Float).Mul(currentBalance, big.NewFloat(satoshiPerByte))
 	s.store.SetAKey(address, bal.String())
-	return bal
+	return bal, nil
 }
 
 // ===========================================================================================//

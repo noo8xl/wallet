@@ -1,6 +1,7 @@
 package dogecoin_test
 
 import (
+	"math/big"
 	"testing"
 	"wallet/api"
 	"wallet/crypto-lib/dogecoin"
@@ -39,27 +40,27 @@ func TestInitService(t *testing.T) {
 	}
 }
 
-// func TestCreatePermanentWallet(t *testing.T) {
+func TestCreatePermanentWallet(t *testing.T) {
 
-// 	wt := TEST_SVC.CreatePermanentWallet(TEST_USER_ID)
-// 	if wt == nil {
-// 		t.Fatalf("TestCreatePermanentWallet 1 expected: &api.WalletItem, got: %v", wt)
-// 	}
+	wt := TEST_SVC.CreatePermanentWallet(TEST_USER_ID)
+	if wt == nil {
+		t.Fatalf("TestCreatePermanentWallet 1 expected: &api.WalletItem, got: %v", wt)
+	}
 
-// 	wt = TEST_SVC.CreatePermanentWallet(TEST_USER_ID)
-// 	if wt != nil {
-// 		t.Fatalf("TestCreatePermanentWallet 2 expected: nil, got: %v", wt)
-// 	}
+	wt = TEST_SVC.CreatePermanentWallet(TEST_USER_ID)
+	if wt != nil {
+		t.Fatalf("TestCreatePermanentWallet 2 expected: nil, got: %v", wt)
+	}
 
-// 	wt2 := TEST_SVC.CreatePermanentWallet(TEST_BENEFICIAR_ID)
-// 	if wt2 == nil {
-// 		t.Fatalf("TestCreatePermanentWallet 1 expected: &api.WalletItem, got: %v", wt2)
-// 	}
+	wt2 := TEST_SVC.CreatePermanentWallet(TEST_BENEFICIAR_ID)
+	if wt2 == nil {
+		t.Fatalf("TestCreatePermanentWallet 1 expected: &api.WalletItem, got: %v", wt2)
+	}
 
-// 	TEST_PEYEE_ADDRESS = wt.Address
-// 	TEST_BENEFICIAR_ADDRESS = wt.Address
+	TEST_PEYEE_ADDRESS = wt.Address
+	TEST_BENEFICIAR_ADDRESS = wt.Address
 
-// }
+}
 
 func TestCreateOneTimeAddress(t *testing.T) {
 
@@ -75,28 +76,27 @@ func TestCreateOneTimeAddress(t *testing.T) {
 
 }
 
-// func TestGetBalanceData(t *testing.T) {
-// 	// -> to run this test u should change bc networt to the "main" in main.go file in this package *
-// 	// -> to verify the value (if nessesary)
-// 	// https://www.blockchain.com/explorer/addresses/btc/bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+func TestGetBalanceData(t *testing.T) {
+	// -> to run this test u should change bc networt to the "main" in main.go file in this package *
+	// -> to verify the value (if nessesary)
+	// https://www.blockchain.com/explorer/addresses/btc/bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+	zero := big.NewFloat(0)
+	balance, err := TEST_SVC.GetBalanceByAddress(TEST_ADDRESS)
+	result := balance.Cmp(zero)
+	if result == -1 || err != nil {
+		t.Fatalf("TestGetBalanceData expected positive value != 0; got: %v", err)
+	}
+	t.Logf("TestGetBalanceData result -> %v", balance)
+}
 
-// 	zero := big.NewFloat(0)
-// 	balance := TEST_SVC.GetBalanceByAddress(TEST_ADDRESS)
-// 	result := balance.Cmp(zero)
-// 	if result == -1 {
-// 		t.Fatalf("TestGetBalanceData expected: positive value != 0; got: %v", balance)
-// 	}
-// 	t.Logf("TestGetBalanceData result -> %v", balance)
-// }
+func TestSingleTransaction(t *testing.T) {
+	TEST_SINGLE_TSX_DTO.Payee.PeyeeAddress = TEST_PEYEE_ADDRESS
+	TEST_SINGLE_TSX_DTO.Beneficiar.BeneficiarAddress = TEST_BENEFICIAR_ADDRESS
 
-// func TestSingleTransaction(t *testing.T) {
-// 	TEST_SINGLE_TSX_DTO.Payee.PeyeeAddress = TEST_PEYEE_ADDRESS
-// 	TEST_SINGLE_TSX_DTO.Beneficiar.BeneficiarAddress = TEST_BENEFICIAR_ADDRESS
+	hash, err := TEST_SVC.DefineaTypeAndSendSingleTransaction(TEST_SINGLE_TSX_DTO)
+	if hash == "" || err != nil {
+		t.Fatalf("TestSingleTransaction expected non-empty string; got: %v", err)
+	}
 
-// 	hash := TEST_SVC.SendSingleTransaction(TEST_SINGLE_TSX_DTO)
-// 	if hash == "" {
-// 		t.Fatalf("TestSingleTransaction expected non-empty string; got: %v", hash)
-// 	}
-
-// 	t.Logf("TestSingleTransaction transaction hash -> %v", hash)
-// }
+	t.Logf("TestSingleTransaction transaction hash -> %v", hash)
+}

@@ -5,56 +5,58 @@ import "testing"
 func TestSelectBtcPrivate(t *testing.T) {
 	var err error
 
-	_, err = TEST_SVC.SelectBtcPrivate(TEST_BTC_WT.Address, 0)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "btc", 0)
 	if err != nil {
 		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
 
-	_, err = TEST_SVC.SelectBtcPrivate(TEST_BTC_WT.Address, 1)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "btc", 1)
 	if err != nil {
 		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
+
 }
 
 func TestSelectEthPrivate(t *testing.T) {
 	var err error
 
-	_, err = TEST_SVC.SelectEthPrivate(TEST_ETH_WT.Address, 0)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "eth", 0)
 	if err != nil {
 		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
-	_, err = TEST_SVC.SelectEthPrivate(TEST_ETH_WT.Address, 1)
+
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "eth", 1)
 	if err != nil {
 		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
+
 }
 
 func TestSelectTonPrivate(t *testing.T) {
 	var err error
 
-	_, err = TEST_SVC.SelectTonPrivate(TEST_TON_WT.Address, 0)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "ton", 0)
 	if err != nil {
-		t.Fatalf("expected keyvalue: []byte NOT NULL val; got an error: %v", err)
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
 
-	_, err = TEST_SVC.SelectTonPrivate(TEST_TON_WT.Address, 1)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "ton", 1)
 	if err != nil {
-		t.Fatalf("expected keyvalue: []byte NOT NULL val; got an error: %v", err)
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
 
 }
 
 func TestSelectTrxPrivate(t *testing.T) {
 	var err error
-
-	_, err = TEST_SVC.SelectTrxPrivate(TEST_TON_WT.Address, 0)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "trx", 0)
 	if err != nil {
-		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
 
-	_, err = TEST_SVC.SelectTrxPrivate(TEST_TON_WT.Address, 1)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "trx", 1)
 	if err != nil {
-		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
 
 }
@@ -62,14 +64,14 @@ func TestSelectTrxPrivate(t *testing.T) {
 func TestSelectSolPrivate(t *testing.T) {
 	var err error
 
-	_, err = TEST_SVC.SelectSolPrivate(TEST_TON_WT.Address, 0)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "sol", 0)
 	if err != nil {
-		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
 
-	_, err = TEST_SVC.SelectSolPrivate(TEST_TON_WT.Address, 1)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "sol", 1)
 	if err != nil {
-		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
 
 }
@@ -77,14 +79,14 @@ func TestSelectSolPrivate(t *testing.T) {
 func TestSelectDogePrivate(t *testing.T) {
 	var err error
 
-	_, err = TEST_SVC.SelectDogePrivate(TEST_TON_WT.Address, 0)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "doge", 0)
 	if err != nil {
-		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
 
-	_, err = TEST_SVC.SelectDogePrivate(TEST_TON_WT.Address, 1)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "doge", 1)
 	if err != nil {
-		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
 
 }
@@ -92,16 +94,30 @@ func TestSelectDogePrivate(t *testing.T) {
 func TestSelectLtcPrivate(t *testing.T) {
 	var err error
 
-	_, err = TEST_SVC.SelectLtcPrivate(TEST_TON_WT.Address, 0)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "ltc", 0)
 	if err != nil {
-		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
 	}
 
-	_, err = TEST_SVC.SelectLtcPrivate(TEST_TON_WT.Address, 1)
+	_, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "ltc", 1)
 	if err != nil {
-		t.Fatalf("expected keyvalue: string NOT NULL val; got an error: %v", err)
+		t.Fatalf("expected value: string NOT NULL val; got an error: %v", err)
+	}
+}
+
+func TestSelectaWrongCoinNameAndOpts(t *testing.T) {
+	var err error
+	var val string
+
+	val, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "rom", 0)
+	if err == nil {
+		t.Fatalf("expected value: coin name error; got: %v", val)
 	}
 
+	val, err = TEST_SVC.DefineaBlockchainAndGetPrivateKey(TEST_BTC_WT.Address, "trx", 9)
+	if val != "" || err == nil {
+		t.Fatalf("expected value: invalid opts error; got: %v", val)
+	}
 }
 
 func TestDefineAndGetTableNameByBlockchainShortName(t *testing.T) {

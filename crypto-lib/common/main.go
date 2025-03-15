@@ -1,6 +1,8 @@
 package common
 
 import (
+	"errors"
+	"log"
 	"math/big"
 	"strings"
 	"sync"
@@ -13,7 +15,6 @@ import (
 	"wallet/crypto-lib/solana"
 	theopennetwork "wallet/crypto-lib/the-open-network"
 	"wallet/crypto-lib/tron"
-	"wallet/lib/exceptions"
 )
 
 type Service struct {
@@ -79,6 +80,7 @@ func (s *Service) CreateWalletList(userId int64) *pb.WalletList {
 func (s *Service) DefineBlockchainAndCreatePermanentWallet(coin string, userId int64) *pb.WalletItem {
 
 	var walletItem *pb.WalletItem
+	var err error
 
 	switch strings.ToLower(coin) {
 	case "btc":
@@ -96,7 +98,12 @@ func (s *Service) DefineBlockchainAndCreatePermanentWallet(coin string, userId i
 	case "ton":
 		walletItem = s.tonService.CreatePermanentWallet(userId)
 	default:
-		exceptions.HandleAnException("Got an unknown blockchain in <get wallet>")
+		err = errors.New("invalid coin name")
+	}
+
+	if err != nil {
+		log.Panic(err)
+		return nil
 	}
 
 	return walletItem
@@ -107,6 +114,7 @@ func (s *Service) DefineBlockchainAndCreatePermanentWallet(coin string, userId i
 func (s *Service) DefineBlockchainAndCreateOneTimeAddress(coin string, userId int64) *pb.WalletItem {
 
 	var walletItem *pb.WalletItem
+	var err error
 
 	switch strings.ToLower(coin) {
 	case "btc":
@@ -122,7 +130,12 @@ func (s *Service) DefineBlockchainAndCreateOneTimeAddress(coin string, userId in
 	case "ton":
 		walletItem = s.tonService.CreateOneTimeddress(userId)
 	default:
-		exceptions.HandleAnException("Got an unknown blockchain in <get wallet>")
+		err = errors.New("invalid coin name")
+	}
+
+	if err != nil {
+		log.Panic(err)
+		return nil
 	}
 
 	return walletItem
@@ -132,28 +145,34 @@ func (s *Service) DefineBlockchainAndCreateOneTimeAddress(coin string, userId in
 // and get a balance in crypto by address and coin name
 func (s *Service) DefineBlockchainAndGetCoinBalance(coin, address string) *pb.CoinBalance {
 
-	var balance string
+	var balance *big.Float
+	var err error
 
 	switch coin {
 	case "btc":
-		balance = s.btcService.GetBalanceByAddress(address).String()
+		balance, err = s.btcService.GetBalanceByAddress(address)
 	case "ltc":
-		balance = s.ltcService.GetBalanceByAddress(address).String()
+		balance, err = s.ltcService.GetBalanceByAddress(address)
 	case "doge":
-		balance = s.dogeService.GetBalanceByAddress(address).String()
+		balance, err = s.dogeService.GetBalanceByAddress(address)
 	case "ton":
-		balance = s.tonService.GetBalanceByAddress(address).String()
+		balance, err = s.tonService.GetBalanceByAddress(address)
 	case "eth":
-		balance = s.ethService.GetBalanceByAddress(address).String()
+		balance, err = s.ethService.GetBalanceByAddress(address)
 	case "trx":
-		balance = s.trxService.GetBalanceByAddress(address).String()
+		balance, err = s.trxService.GetBalanceByAddress(address)
 	case "sol":
-		balance = s.solService.GetBalanceByAddress(address) // as *big.Float
+		balance, err = s.solService.GetBalanceByAddress(address) // as a *big.Float
 	default:
-		exceptions.HandleAnException("Got an unknown blockchain at the <get wallet balance>")
+		err = errors.New("invalid coin name")
 	}
 
-	return &pb.CoinBalance{CoinName: coin, Balance: balance}
+	if err != nil {
+		log.Panic(err)
+		return nil
+	}
+
+	return &pb.CoinBalance{CoinName: coin, Balance: balance.String()}
 }
 
 func (s *Service) DefineBlockchainAndGetCustomerBalance(currencyType string, customerId int64) *pb.CustomerBalance {
@@ -180,26 +199,31 @@ func (s *Service) DefineBlockchainAndGetCustomerBalance(currencyType string, cus
 // DefineBlockchainAndSendTsx -> define a blockchain, init connection
 // and send transaction to user by address and coinName
 func (s *Service) DefineBlockchainAndSendSingleTsx(dto *pb.SendSingleTsxRequest) *pb.TransactionHash {
-
 	var hash string
+	var err error
 
 	switch dto.CoinName {
 	case "btc":
-		hash = s.btcService.SendSingleTransaction(dto)
+		hash, err = s.btcService.DefineaTypeAndSendSingleTransaction(dto)
 	case "ltc":
-		hash = s.ltcService.SendSingleTransaction(dto)
+		hash, err = s.ltcService.DefineaTypeAndSendSingleTransaction(dto)
 	case "doge":
-		hash = s.dogeService.SendSingleTransaction(dto)
+		hash, err = s.dogeService.DefineaTypeAndSendSingleTransaction(dto)
 	case "eth":
-		hash = s.ethService.SendSingleTransaction(dto)
+		hash, err = s.ethService.DefineaTypeAndSendSingleTransaction(dto)
 	case "ton":
-		hash = s.tonService.SendSingleTransaction(dto)
+		hash, err = s.tonService.DefineaTypeAndSendSingleTransaction(dto)
 	case "trx":
-		hash = s.trxService.SendSingleTransaction(dto)
+		hash, err = s.trxService.DefineaTypeAndSendSingleTransaction(dto)
 	case "sol":
-		hash = s.solService.SendSingleTransaction(dto)
+		hash, err = s.solService.DefineaTypeAndSendSingleTransaction(dto)
 	default:
-		exceptions.HandleAnException("Got an unknown blockchain at the <send transaction>")
+		err = errors.New("invalid coin name")
+	}
+
+	if err != nil {
+		log.Panic(err)
+		return nil
 	}
 
 	return &pb.TransactionHash{TsxHash: hash}
@@ -212,24 +236,30 @@ func (s *Service) DefineBlockchainAndSendMultiptleTsx(dto *pb.SendMultipleTsxReq
 	// TODO: impl this method
 
 	var hash string
+	var err error
 
 	switch dto.CoinName {
 	case "btc":
-		// hash = s.btcService.SentMu(dto)
+		hash, err = s.btcService.DefineaTypeAndSendMultipleTransaction(dto)
 	case "ltc":
-		//
+		hash, err = s.ltcService.DefineaTypeAndSendMultipleTransaction(dto)
 	case "doge":
-		//
+		hash, err = s.dogeService.DefineaTypeAndSendMultipleTransaction(dto)
 	case "eth":
-		// hash = s.EthereumService.SendSingleEthTransaction(dto)
+		hash, err = s.ethService.DefineaTypeAndSendMultipleTransaction(dto)
 	case "ton":
-		// hash = s.TONService.SendSingleTonTransaction(dto)
+		hash, err = s.tonService.DefineaTypeAndSendMultipleTransaction(dto)
 	case "trx":
-	// hash = s.TronService.SendSingleTrxTransaction(dto)
+		hash, err = s.trxService.DefineaTypeAndSendMultipleTransaction(dto)
 	case "sol":
-		// hash = s.SolanaService.SendSingleSolTransaction(dto)"
+		hash, err = s.solService.DefineaTypeAndSendMultipleTransaction(dto)
 	default:
-		exceptions.HandleAnException("Got an unknown blockchain at the <send transaction>")
+		err = errors.New("invalid coin name")
+	}
+
+	if err != nil {
+		log.Panic(err)
+		return nil
 	}
 
 	return &pb.TransactionHash{TsxHash: hash}

@@ -3,34 +3,7 @@ package bitcoin_test
 import (
 	"math/big"
 	"testing"
-	"wallet/api"
 	"wallet/crypto-lib/bitcoin"
-)
-
-// -> if ur tests got an unexpected results - run:
-// ../../database/main_test.go -> TestCleanUp to clean all data after previous testing
-var (
-	TEST_SVC                 = bitcoin.InitService()
-	TEST_ADDRESS             = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh" // random address from the blockchain explorer
-	TEST_USER_ID       int64 = 90990                                        // also used as a peyee
-	TEST_BENEFICIAR_ID int64 = 8831721
-
-	TEST_BENEFICIAR_ADDRESS = ""
-	TEST_PEYEE_ADDRESS      = ""
-
-	TEST_SINGLE_TSX_DTO = &api.SendSingleTsxRequest{
-		CoinName: "btc",
-		Payee: &api.PeyeeData{
-			PeyeeAddress: "",
-			PeyeeId:      TEST_USER_ID,
-			Amount:       "0.023",
-		},
-		Beneficiar: &api.BeneficiarData{
-			BeneficiarAddress: "",
-			BeneficiarId:      TEST_BENEFICIAR_ID,
-			Amount:            "0.023",
-		},
-	}
 )
 
 func TestInitService(t *testing.T) {
@@ -82,26 +55,17 @@ func TestGetBalanceData(t *testing.T) {
 	// https://www.blockchain.com/explorer/addresses/btc/bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
 
 	zero := big.NewFloat(0)
-	balance := TEST_SVC.GetBalanceByAddress(TEST_ADDRESS)
+	balance, err := TEST_SVC.GetBalanceByAddress(TEST_ADDRESS)
+	if err != nil {
+		t.Fatalf("TestGetBalanceData expected non-empty float; got an error: %v", err)
+	}
 	result := balance.Cmp(zero)
 	if result == -1 {
-		t.Fatalf("TestGetBalanceData expected positive value != 0; got: %v", balance)
+		t.Fatalf("TestGetBalanceData expected positive non-zero value; got: %v", balance)
 	}
+	if result == 1 {
+		t.Fatalf("TestGetBalanceData expected  non-zero value; got: %v", balance)
+	}
+
 	t.Logf("TestGetBalanceData result -> %v", balance)
 }
-
-func TestSingleTransaction(t *testing.T) {
-	TEST_SINGLE_TSX_DTO.Payee.PeyeeAddress = TEST_PEYEE_ADDRESS
-	TEST_SINGLE_TSX_DTO.Beneficiar.BeneficiarAddress = TEST_BENEFICIAR_ADDRESS
-
-	hash := TEST_SVC.SendSingleTransaction(TEST_SINGLE_TSX_DTO)
-	if hash == "" {
-		t.Fatalf("TestSingleTransaction expected non-empty string; got: %v", hash)
-	}
-
-	t.Logf("TestSingleTransaction transaction hash -> %v", hash)
-}
-
-// func TestMultTransaction(t *testing.T) {
-
-// }

@@ -39,12 +39,13 @@ func InitService() *Service {
 
 // CreateWallet is in charge of creating a new root wallet
 func (s *Service) CreatePermanentWallet(userId int64) *pb.WalletItem {
-
-	existedAddress := s.db.IsWalletExists(userId, "eth")
-	if !existedAddress {
-		return s.generateAddress(userId, 0)
+	existedAddress, err := s.db.IsWalletExists(userId, "eth", 0)
+	if err == nil {
+		if !existedAddress {
+			return s.generateAddress(userId, 0)
+		}
 	}
-	exceptions.HandleAnHttpExceprion()
+
 	return nil
 }
 
@@ -53,11 +54,14 @@ func (s *Service) CreateOneTimeddress(userId int64) *pb.WalletItem {
 }
 
 // GetEthereumAddressBalance -> get balance by address
-func (s *Service) GetBalanceByAddress(address string) *big.Float {
+func (s *Service) GetBalanceByAddress(address string) (*big.Float, error) {
 
 	result, err := s.store.GetAKey(address)
+	if err != nil {
+		return nil, err
+	}
 	if val := helpers.BalanceFromStoreFormatter(result, err); val != nil {
-		return val
+		return val, nil
 	}
 
 	currentBalance := new(big.Float)
@@ -68,7 +72,7 @@ func (s *Service) GetBalanceByAddress(address string) *big.Float {
 
 	addressData, err := s.bc.GetAddrBal(address, nil)
 	if err != nil {
-		exceptions.HandleAnException("<eth GetAddrBal> got an err: " + err.Error())
+		return nil, err
 	}
 
 	currentBalance.SetString(addressData.Balance.String())
@@ -76,7 +80,7 @@ func (s *Service) GetBalanceByAddress(address string) *big.Float {
 
 	// fmt.Println("balance -> ", currentBalance)
 	s.store.SetAKey(address, ethValue.String())
-	return ethValue
+	return ethValue, nil
 }
 
 // ===========================================================================================//

@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	pb "wallet/api"
-	"wallet/lib/helpers"
+	pb "wallet/gen/wallet"
+	"wallet/pkg/utils"
 )
 
 type handler struct {
@@ -44,12 +44,12 @@ func (h *handler) HandleCreatePermanentAddress(w http.ResponseWriter, r *http.Re
 	})
 	if err != nil {
 		if err.Error() == "already exists" {
-			helpers.WriteError(w, 404, "Bad request. Permanent wallet already exists")
+			utils.WriteError(w, 404, "Bad request. Permanent wallet already exists")
 		}
-		helpers.WriteError(w, 500, err.Error())
+		utils.WriteError(w, 500, err.Error())
 	}
 
-	helpers.WriteJSON(w, 200, wallet)
+	utils.WriteJSON(w, 200, wallet)
 }
 
 func (h *handler) HandleCreateOneTimeAddress(w http.ResponseWriter, r *http.Request) {
@@ -63,10 +63,10 @@ func (h *handler) HandleCreateOneTimeAddress(w http.ResponseWriter, r *http.Requ
 		CoinName:   coinName,
 	})
 	if err != nil {
-		helpers.WriteError(w, 500, err.Error())
+		utils.WriteError(w, 500, err.Error())
 	}
 
-	helpers.WriteJSON(w, 200, wallet)
+	utils.WriteJSON(w, 200, wallet)
 }
 
 func (h *handler) HandleGetBalance(w http.ResponseWriter, r *http.Request) {

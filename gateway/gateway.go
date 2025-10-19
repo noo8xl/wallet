@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
-	"wallet/lib/exceptions"
+	"wallet/pkg/exceptions"
 
-	pb "wallet/api"
+	pb "wallet/gen/wallet"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

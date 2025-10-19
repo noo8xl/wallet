@@ -2,11 +2,11 @@
 
 -> error handling:
   - response errors *
-  - grpc/http error* 
+  - grpc/http error*
 
--> tests: 
+-> tests:
   - update tests for the database and crypto-lib
 
 -> impl send tsx*
 
--> 
+->

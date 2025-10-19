@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	pb "wallet/api"
+	pb "wallet/gen/wallet"
 )
 
 type WalletService interface {

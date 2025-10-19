@@ -1,16 +1,13 @@
 
-# ------------ export PATH="$PATH:$(go env GOPATH)/bin"
-gen:
-	@protoc --go_out=. --go_opt=paths=source_relative \
-	--go-grpc_out=. --go-grpc_opt=paths=source_relative \
-	api/wallet.proto
+# generate wallet protobuf files
+gen-wallet:
+	protoc -I=api \
+	--go_out ./gen/wallet \
+	--go_opt=paths=source_relative \
+	--go-grpc_out ./gen/wallet \
+	--go-grpc_opt=paths=source_relative \
+	wallet.proto
 
-build:
-	rm -rf ./bin/ | GOFLAGS=-mod=mod GOOS=linux GOARCH=amd64 go build -o bin/wallet-gateway ./gateway/. | GOFLAGS=-mod=mod GOOS=linux GOARCH=amd64 go build -o bin/wallet-rpc ./crypto-lib/.
-
-# ------------- run all tests 
-test:
-	go test ./... -v
-
-migrate:
-	migrate create -ext=sql -dir=/database/migrations/ -seq $(migrationName)
+# run tests
+run-test:
+	export GO_ENV=test && go test -v ./...
